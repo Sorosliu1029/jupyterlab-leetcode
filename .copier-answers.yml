@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.3.8
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: soros.liu1029@gmail.com
+author_name: Soros Liu
+has_binder: false
+has_settings: true
+kind: server
+labextension_name: jupyterlab-leetcode
+project_short_description: Integrate LeetCode into beloved Jupyter.
+python_name: jupyterlab_leetcode
+repository: https://github.com/Sorosliu1029/jupyterlab-leetcode
+test: true
+

@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "jupyterlab-leetcode",
+  "description": "jupyterlab-leetcode settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
