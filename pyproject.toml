@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "jupyter_server>=2.4.0,<3"
+  # TODO: fill this
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
