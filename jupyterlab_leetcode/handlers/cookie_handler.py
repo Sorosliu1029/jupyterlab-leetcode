@@ -60,7 +60,7 @@ class GetCookieHandler(BaseHandler):
             )
             self.add_header(
                 "Set-Cookie",
-                f"leetcode_browser={browser}; Path=/; HttpOnly; Max-Age={max_age}",
+                f"leetcode_browser={browser}; Path=/; Max-Age={max_age}",
             )
 
         self.finish(json.dumps(resp))

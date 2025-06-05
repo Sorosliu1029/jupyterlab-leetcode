@@ -1,13 +1,25 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
-import React, { StrictMode, useState } from 'react';
+import React, { StrictMode, useEffect, useState } from 'react';
 import LandingPage from './components/LandingPage';
+import LeetCode from './components/LeetCode';
 
 const LeetCodeComponent = (): JSX.Element => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  return isLoggedIn ? (
-    <div></div>
+  const [cookieLoggedIn, setCookieLoggedIn] = useState('');
+
+  useEffect(() => {
+    const leetcode_browser = document.cookie
+      .split('; ')
+      .find(cookie => cookie.startsWith('leetcode_browser='))
+      ?.split('=')[1];
+    if (leetcode_browser) {
+      setCookieLoggedIn(leetcode_browser);
+    }
+  }, []);
+
+  return cookieLoggedIn ? (
+    <LeetCode />
   ) : (
-    <LandingPage onLoginSuccess={() => setIsLoggedIn(true)} />
+    <LandingPage setCookieLoggedIn={b => setCookieLoggedIn(b)} />
   );
 };
 

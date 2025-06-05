@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { getCookie } from '../services/cookie';
 import Bowser from 'bowser';
 
-const BrowserCookie = ({ onSuccess }: { onSuccess: () => void }) => {
+const BrowserCookie = ({
+  setCookieLoggedIn
+}: {
+  setCookieLoggedIn: (b: string) => void;
+}) => {
   const browsers = [
     'Chrome',
     'Firefox',
@@ -40,9 +44,9 @@ const BrowserCookie = ({ onSuccess }: { onSuccess: () => void }) => {
 
   useEffect(() => {
     if (checked) {
-      onSuccess();
+      setCookieLoggedIn(browser);
     }
-  }, [checked, onSuccess]);
+  }, [checked, setCookieLoggedIn]);
 
   const checkCookie = () => {
     // TODO: change alert

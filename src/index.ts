@@ -7,11 +7,13 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 
 import LeetCodeWidget from './widget';
 
+const PLUGIN_ID = 'jupyterlab-leetcode:plugin';
+
 /**
  * Initialization data for the jupyterlab-leetcode extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-leetcode:plugin',
+  id: PLUGIN_ID,
   description: 'Integrate LeetCode into beloved Jupyter.',
   autoStart: true,
   requires: [ICommandPalette],
