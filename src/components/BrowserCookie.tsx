@@ -61,8 +61,8 @@ const BrowserCookie = ({
       return;
     }
 
-    getCookie(browser).then(cookies => {
-      setChecked(!!cookies['exist']);
+    getCookie(browser).then(resp => {
+      setChecked(resp['checked']);
     });
   };
 

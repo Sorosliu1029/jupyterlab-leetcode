@@ -2,6 +2,7 @@ import { ReactWidget } from '@jupyterlab/ui-components';
 import React, { StrictMode, useEffect, useState } from 'react';
 import LandingPage from './components/LandingPage';
 import LeetCode from './components/LeetCode';
+import { getCookie } from './services/cookie';
 
 const LeetCodeComponent = (): JSX.Element => {
   const [cookieLoggedIn, setCookieLoggedIn] = useState('');
@@ -12,9 +13,13 @@ const LeetCodeComponent = (): JSX.Element => {
       .find(cookie => cookie.startsWith('leetcode_browser='))
       ?.split('=')[1];
     if (leetcode_browser) {
-      setCookieLoggedIn(leetcode_browser);
+      getCookie(leetcode_browser).then(resp => {
+        if (resp['checked']) {
+          setCookieLoggedIn(leetcode_browser);
+        }
+      });
     }
-  }, []);
+  });
 
   return cookieLoggedIn ? (
     <LeetCode />

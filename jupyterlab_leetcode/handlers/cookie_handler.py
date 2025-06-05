@@ -48,19 +48,18 @@ class GetCookieHandler(BaseHandler):
             cast(Cookie, cookie_session).is_expired()
             or cast(Cookie, cookie_csrf).is_expired()
         )
+        checked = exist and not expired
 
-        resp = {"exist": exist, "expired": expired}
+        resp = {"exist": exist, "expired": expired, "checked": checked}
 
-        if exist and not expired:
+        if checked:
             cookie_session_expires = cast(Cookie, cookie_session).expires
             max_age = (
                 cookie_session_expires - int(time.time())
                 if cookie_session_expires is not None
                 else 3600 * 24 * 14
             )
-            self.add_header(
-                "Set-Cookie",
-                f"leetcode_browser={browser}; Path=/; Max-Age={max_age}",
-            )
+            self.set_cookie("leetcode_browser", browser, max_age=max_age)
+            self.settings.update(leetcode_browser=browser, leetcode_cookiejar=cj)
 
         self.finish(json.dumps(resp))
