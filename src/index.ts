@@ -21,8 +21,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     palette: ICommandPalette,
     restorer: ILayoutRestorer | null
   ) => {
-    console.log('JupyterLab extension jupyterlab-leetcode is activated!');
-
     let leetcodeWidget: LeetCodeWidget;
 
     const command = 'leetcode-widget:open';
@@ -47,7 +45,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       namespace: 'leetcode-widget'
     });
     if (restorer) {
-      console.log('Restoring layout for jupyterlab-leetcode plugin');
       restorer.restore(tracker, { command, name: () => 'leetcode' });
     }
   }
