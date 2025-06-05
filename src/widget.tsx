@@ -1,18 +1,13 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
-import React from 'react';
-import BrowserCookie from './components/BrowserCookie';
+import React, { StrictMode, useState } from 'react';
+import LandingPage from './components/LandingPage';
 
 const LeetCodeComponent = (): JSX.Element => {
-  const options: JSX.Element[] = [<BrowserCookie />];
-  return (
-    <div>
-      <p>Welcome to JupyterLab LeetCode Widget.</p>
-      <p>
-        For this plugin to work, you may choose one of these {options.length}{' '}
-        methods to allow this plugin to log into LeetCode.
-      </p>
-      {...options}
-    </div>
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  return isLoggedIn ? (
+    <div></div>
+  ) : (
+    <LandingPage onLoginSuccess={() => setIsLoggedIn(true)} />
   );
 };
 
@@ -24,7 +19,11 @@ class LeetCodeWidget extends ReactWidget {
   }
 
   protected render(): JSX.Element {
-    return <LeetCodeComponent />;
+    return (
+      <StrictMode>
+        <LeetCodeComponent />
+      </StrictMode>
+    );
   }
 }
 

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getCookie } from '../services/cookie';
+import Bowser from 'bowser';
 
-const BrowserCookie = () => {
+const BrowserCookie = ({ onSuccess }: { onSuccess: () => void }) => {
   const browsers = [
     'Chrome',
     'Firefox',
@@ -16,10 +17,35 @@ const BrowserCookie = () => {
     'Opera GX'
   ];
 
+  const normalizeBrowserName = (name: string) =>
+    name.toLowerCase().replace(/\s+/g, '_');
+
   const [browser, setBrowser] = useState('');
   const [checked, setChecked] = useState(false);
 
+  // set browser value by detecting current browser
+  useEffect(() => {
+    const browserName = Bowser.getParser(
+      window.navigator.userAgent
+    ).getBrowserName(true);
+    if (browserName) {
+      const firstMatch = browsers.find(b =>
+        new RegExp(b, 'i').test(browserName)
+      );
+      if (firstMatch) {
+        setBrowser(normalizeBrowserName(firstMatch));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (checked) {
+      onSuccess();
+    }
+  }, [checked, onSuccess]);
+
   const loadCookies = () => {
+    // TODO: change alert
     if (!browser) {
       alert('Please select a browser.');
       return;
@@ -55,7 +81,7 @@ const BrowserCookie = () => {
         {browsers.map(browser => (
           <option
             key={browser.toLowerCase()}
-            value={browser.toLowerCase().replace(/\s+/g, '_')}
+            value={normalizeBrowserName(browser)}
           >
             {browser}
           </option>
