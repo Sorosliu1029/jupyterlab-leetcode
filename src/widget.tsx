@@ -1,10 +1,12 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
 import React from 'react';
+import BrowserCookie from './components/BrowserCookie';
 
 const LeetCodeComponent = (): JSX.Element => {
   return (
     <div>
       <p>Welcome to JupyterLab LeetCode Widget.</p>
+      <BrowserCookie />
     </div>
   );
 };
