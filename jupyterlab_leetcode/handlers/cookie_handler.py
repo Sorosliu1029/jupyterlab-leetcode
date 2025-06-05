@@ -60,6 +60,10 @@ class GetCookieHandler(BaseHandler):
                 else 3600 * 24 * 14
             )
             self.set_cookie("leetcode_browser", browser, max_age=max_age)
-            self.settings.update(leetcode_browser=browser, leetcode_cookiejar=cj)
+            self.settings.update(
+                leetcode_browser=browser,
+                leetcode_cookiejar=cj,
+                leetcode_ua=self.request.headers.get("user-agent"),
+            )
 
         self.finish(json.dumps(resp))
