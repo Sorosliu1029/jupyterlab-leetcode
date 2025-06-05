@@ -1,4 +1,7 @@
 import json
+import time
+from http.cookiejar import Cookie
+from typing import cast
 
 import browser_cookie3
 import tornado
@@ -21,7 +24,7 @@ BROWSER_COOKIE_METHOD_MAP = {
 
 
 class GetCookieHandler(BaseHandler):
-    route = r"cookies/[a-zA-Z0-9_-]+"
+    route = r"cookies"
 
     @tornado.web.authenticated
     def get(self):
@@ -38,17 +41,26 @@ class GetCookieHandler(BaseHandler):
             return
 
         cj = BROWSER_COOKIE_METHOD_MAP[browser](domain_name="leetcode.com")
-
-        self.finish(
-            json.dumps(
-                dict(
-                    map(
-                        lambda c: (
-                            c.name,
-                            {"name": c.name, "domain": c.domain, "value": c.value},
-                        ),
-                        cj,
-                    )
-                )
-            )
+        cookie_session = next((c for c in cj if c.name == "LEETCODE_SESSION"), None)
+        cookie_csrf = next((c for c in cj if c.name == "csrftoken"), None)
+        exist = bool(cookie_session and cookie_csrf)
+        expired = exist and (
+            cast(Cookie, cookie_session).is_expired()
+            or cast(Cookie, cookie_csrf).is_expired()
         )
+
+        resp = {"exist": exist, "expired": expired}
+
+        if exist and not expired:
+            cookie_session_expires = cast(Cookie, cookie_session).expires
+            max_age = (
+                cookie_session_expires - int(time.time())
+                if cookie_session_expires is not None
+                else 3600 * 24 * 14
+            )
+            self.add_header(
+                "Set-Cookie",
+                f"leetcode_browser={browser}; Path=/; HttpOnly; Max-Age={max_age}",
+            )
+
+        self.finish(json.dumps(resp))

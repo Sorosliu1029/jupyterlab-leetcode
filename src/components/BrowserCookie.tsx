@@ -44,7 +44,7 @@ const BrowserCookie = ({ onSuccess }: { onSuccess: () => void }) => {
     }
   }, [checked, onSuccess]);
 
-  const loadCookies = () => {
+  const checkCookie = () => {
     // TODO: change alert
     if (!browser) {
       alert('Please select a browser.');
@@ -52,15 +52,13 @@ const BrowserCookie = ({ onSuccess }: { onSuccess: () => void }) => {
     }
     if (browser === 'safari') {
       alert(
-        'Safari does not support loading cookies from the browser. Please use another browser.'
+        'Safari does not support getting cookies from the browser. Please use another browser.'
       );
       return;
     }
 
-    getCookie('all', browser).then(cookies => {
-      if (cookies && cookies['LEETCODE_SESSION'] && cookies['csrftoken']) {
-        setChecked(true);
-      }
+    getCookie(browser).then(cookies => {
+      setChecked(!!cookies['exist']);
     });
   };
 
@@ -87,7 +85,7 @@ const BrowserCookie = ({ onSuccess }: { onSuccess: () => void }) => {
           </option>
         ))}
       </select>
-      <button onClick={loadCookies}>Load</button>
+      <button onClick={checkCookie}>Check</button>
       <p>Checked: {checked ? 'Yes' : 'No'}</p>
     </div>
   );
