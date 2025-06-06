@@ -1,0 +1,17 @@
+import React from 'react';
+import { LeetCodeProfile } from '../types/leetcode';
+
+const Profile = ({ profile }: { profile: LeetCodeProfile }) => {
+  return (
+    <div>
+      <p>Welcome {profile.username}</p>
+      <img
+        src={profile.avatar}
+        alt="Avatar"
+        style={{ width: '100px', height: '100px' }}
+      />
+    </div>
+  );
+};
+
+export default Profile;

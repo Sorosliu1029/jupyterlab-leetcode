@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getProfile, getStatistics } from '../services/leetcode';
-import { LeetCodeProfile } from '../types/leetcode';
+import { LeetCodeProfile, LeetCodeStatistics } from '../types/leetcode';
+import Profile from './Profile';
 
 const LeetCode = () => {
   const [profile, setProfile] = useState<LeetCodeProfile | null>(null);
+  const [_statistics, setStatistics] = useState<LeetCodeStatistics | null>(null);
 
   useEffect(() => {
     getProfile().then(profile => {
@@ -20,20 +22,11 @@ const LeetCode = () => {
       return;
     }
     getStatistics(profile.username).then(d => {
-      console.log('LeetCode Statistics:', d);
+      setStatistics(d);
     });
   }, [profile]);
 
-  return profile ? (
-    <div>
-      <p>Welcome {profile.username}</p>
-      <img
-        src={profile.avatar}
-        alt="Avatar"
-        style={{ width: '100px', height: '100px' }}
-      />
-    </div>
-  ) : null;
+  return profile ? <Profile profile={profile} /> : null;
 };
 
 export default LeetCode;
