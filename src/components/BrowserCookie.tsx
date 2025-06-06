@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { getCookie } from '../services/cookie';
 import Bowser from 'bowser';
 
-const BrowserCookie = ({
-  setCookieLoggedIn
-}: {
+const BrowserCookie: React.FC<{
   setCookieLoggedIn: (b: string) => void;
-}) => {
+}> = ({ setCookieLoggedIn }) => {
   const browsers = [
     'Chrome',
     'Firefox',

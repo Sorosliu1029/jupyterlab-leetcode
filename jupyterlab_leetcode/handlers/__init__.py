@@ -2,7 +2,8 @@ from jupyter_server.utils import url_path_join
 
 from .base_handler import BaseHandler
 from .cookie_handler import GetCookieHandler
-from .leetcode_handler import LeetCodeProfileHandler, LeetCodeStatisticsHandler
+from .leetcode_handler import (LeetCodeProfileHandler, LeetCodeQuestionHandler,
+                               LeetCodeStatisticsHandler)
 
 
 def setup_handlers(web_app):
@@ -12,6 +13,7 @@ def setup_handlers(web_app):
         GetCookieHandler,
         LeetCodeProfileHandler,
         LeetCodeStatisticsHandler,
+        LeetCodeQuestionHandler,
     ]
 
     web_app.add_handlers(

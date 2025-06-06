@@ -1,7 +1,7 @@
 import React from 'react';
 import { LeetCodeProfile } from '../types/leetcode';
 
-const Profile = ({ profile }: { profile: LeetCodeProfile }) => {
+const Profile: React.FC<{ profile: LeetCodeProfile }> = ({ profile }) => {
   return (
     <div>
       <p>Welcome {profile.username}</p>

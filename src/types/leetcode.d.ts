@@ -49,3 +49,21 @@ export type LeetCodeStatistics = {
     userProfileUserQuestionProgressV2: LeetCodeQuestionProgress;
   };
 };
+
+export type LeetCodeTopicTag = {
+  name: string;
+  slug: string;
+};
+
+export type LeetCodeQuestion = {
+  acRate: number;
+  difficulty: string;
+  id: number;
+  isInMyFavorites: boolean;
+  paidOnly: boolean;
+  questionFrontendId: string;
+  status: string;
+  title: string;
+  titleSlug: string;
+  topicTags: LeetCodeTopicTag[];
+};

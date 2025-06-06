@@ -1,5 +1,5 @@
 import json
-from typing import cast
+from typing import Any, Mapping, cast
 
 import tornado
 from tornado.gen import multi
@@ -10,7 +10,7 @@ from .base_handler import BaseHandler
 
 LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql"
 
-type QueryType = dict[str, str | dict[str, str]]
+type QueryType = dict[str, str | Mapping[str, Any]]
 
 
 class LeetCodeHandler(BaseHandler):
@@ -174,3 +174,93 @@ class LeetCodeStatisticsHandler(LeetCodeHandler):
             )
         )
         self.finish(res)
+
+
+class LeetCodeQuestionHandler(LeetCodeHandler):
+    route = r"leetcode/questions"
+
+    @tornado.web.authenticated
+    async def post(self):
+        body = self.get_json_body()
+        if not body:
+            self.set_status(400)
+            self.finish(json.dumps({"message": "Request body is required"}))
+            return
+
+        body = cast("dict[str, str|int]", body)
+        skip = cast(int, body.get("skip", 0))
+        limit = cast(int, body.get("limit", 0))
+        keyword = cast(str, body.get("keyword", ""))
+        sortField = cast(str, body.get("sortField", "CUSTOM"))
+        sortOrder = cast(str, body.get("sortOrder", "ASCENDING"))
+
+        await self.graphql(
+            name="question_list",
+            query={
+                "query": """query problemsetQuestionListV2($filters: QuestionFilterInput,
+                                                                $limit: Int,
+                                                                $searchKeyword: String,
+                                                                $skip: Int,
+                                                                $sortBy: QuestionSortByInput,
+                                                                $categorySlug: String) {
+                                              problemsetQuestionListV2(
+                                                filters: $filters
+                                                limit: $limit
+                                                searchKeyword: $searchKeyword
+                                                skip: $skip
+                                                sortBy: $sortBy
+                                                categorySlug: $categorySlug
+                                              ) {
+                                                questions {
+                                                  id
+                                                  titleSlug
+                                                  title
+                                                  translatedTitle
+                                                  questionFrontendId
+                                                  paidOnly
+                                                  difficulty
+                                                  topicTags {
+                                                    name
+                                                    slug
+                                                    nameTranslated
+                                                  }
+                                                  status
+                                                  isInMyFavorites
+                                                  frequency
+                                                  acRate
+                                                }
+                                                totalLength
+                                                finishedLength
+                                                hasMore
+                                              }
+                                            }""",
+                "variables": {
+                    "skip": skip,
+                    "limit": limit,
+                    "searchKeyword": keyword,
+                    "categorySlug": "algorithms",
+                    "filters": {
+                        "filterCombineType": "ALL",
+                        "statusFilter": {
+                            "questionStatuses": ["TO_DO"],
+                            "operator": "IS",
+                        },
+                        "difficultyFilter": {
+                            "difficulties": ["MEDIUM", "HARD"],
+                            "operator": "IS",
+                        },
+                        "languageFilter": {"languageSlugs": [], "operator": "IS"},
+                        "topicFilter": {"topicSlugs": [], "operator": "IS"},
+                        "acceptanceFilter": {},
+                        "frequencyFilter": {},
+                        "frontendIdFilter": {},
+                        "lastSubmittedFilter": {},
+                        "publishedFilter": {},
+                        "companyFilter": {"companySlugs": [], "operator": "IS"},
+                        "positionFilter": {"positionSlugs": [], "operator": "IS"},
+                        "premiumFilter": {"premiumStatus": [], "operator": "IS"},
+                    },
+                    "sortBy": {"sortField": sortField, "sortOrder": sortOrder},
+                },
+            },
+        )

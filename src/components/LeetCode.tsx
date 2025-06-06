@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getProfile, getStatistics } from '../services/leetcode';
-import { LeetCodeProfile, LeetCodeStatistics } from '../types/leetcode';
+import { getProfile } from '../services/leetcode';
+import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
 import Statistics from './Statistics';
+import QuestionList from './QuestionList';
 
-const LeetCode = () => {
+const LeetCode: React.FC = () => {
   const [profile, setProfile] = useState<LeetCodeProfile | null>(null);
-  const [statistics, setStatistics] = useState<LeetCodeStatistics | null>(null);
 
   useEffect(() => {
     getProfile().then(profile => {
@@ -18,19 +18,11 @@ const LeetCode = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (!profile) {
-      return;
-    }
-    getStatistics(profile.username).then(d => {
-      setStatistics(d);
-    });
-  }, [profile]);
-
   return profile ? (
     <div>
       <Profile profile={profile} />
-      {statistics ? <Statistics statisitcs={statistics} /> : null}
+      <Statistics username={profile.username} />
+      <QuestionList />
     </div>
   ) : null;
 };

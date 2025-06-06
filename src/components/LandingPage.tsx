@@ -1,11 +1,9 @@
 import React from 'react';
 import BrowserCookie from './BrowserCookie';
 
-const LandingPage = ({
-  setCookieLoggedIn
-}: {
+const LandingPage: React.FC<{
   setCookieLoggedIn: (b: string) => void;
-}) => {
+}> = ({ setCookieLoggedIn }) => {
   const options: JSX.Element[] = [
     <BrowserCookie setCookieLoggedIn={setCookieLoggedIn} />
   ];
