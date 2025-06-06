@@ -5,6 +5,8 @@ from typing import cast
 
 import browser_cookie3
 import tornado
+from tornado.httpclient import AsyncHTTPClient
+from tornado.httputil import HTTPHeaders
 
 from .base_handler import BaseHandler
 
@@ -60,10 +62,25 @@ class GetCookieHandler(BaseHandler):
                 else 3600 * 24 * 14
             )
             self.set_cookie("leetcode_browser", browser, max_age=max_age)
+            leetcode_ua = self.request.headers.get("user-agent")
             self.settings.update(
                 leetcode_browser=browser,
                 leetcode_cookiejar=cj,
-                leetcode_ua=self.request.headers.get("user-agent"),
+                leetcode_headers=HTTPHeaders(
+                    {
+                        "Cookie": "; ".join(f"{c.name}={c.value}" for c in cj),
+                        "Content-Type": "application/json",
+                        "Origin": "https://leetcode.com",
+                        "Referer": "https://leetcode.com/",
+                        "X-CsrfToken": (
+                            cookie_csrf.value
+                            if cookie_csrf and cookie_csrf.value
+                            else ""
+                        ),
+                    }
+                ),
+                leetcode_ua=leetcode_ua,
             )
+            AsyncHTTPClient.configure(None, defaults=dict(user_agent=leetcode_ua))
 
         self.finish(json.dumps(resp))
