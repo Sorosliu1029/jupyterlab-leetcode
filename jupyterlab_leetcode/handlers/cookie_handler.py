@@ -30,7 +30,7 @@ class GetCookieHandler(BaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.log.info("Loading all cookies for LeetCode...")
+        self.log.debug("Loading all cookies for LeetCode...")
         browser = self.get_query_argument("browser", "", strip=True)
         if not browser:
             self.set_status(400)
@@ -62,7 +62,6 @@ class GetCookieHandler(BaseHandler):
                 else 3600 * 24 * 14
             )
             self.set_cookie("leetcode_browser", browser, max_age=max_age)
-            leetcode_ua = self.request.headers.get("user-agent")
             self.settings.update(
                 leetcode_browser=browser,
                 leetcode_cookiejar=cj,
@@ -79,8 +78,9 @@ class GetCookieHandler(BaseHandler):
                         ),
                     }
                 ),
-                leetcode_ua=leetcode_ua,
             )
-            AsyncHTTPClient.configure(None, defaults=dict(user_agent=leetcode_ua))
+            AsyncHTTPClient.configure(
+                None, defaults=dict(user_agent=self.request.headers.get("user-agent"))
+            )
 
         self.finish(json.dumps(resp))
