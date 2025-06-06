@@ -1,11 +1,13 @@
 import json
-from typing import Any, Mapping, cast
+import os
+from typing import Any, Mapping, cast, overload
 
 import tornado
 from tornado.gen import multi
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPResponse
 from tornado.httputil import HTTPHeaders
 
+from ..utils.notebook_generator import NotebookGenerator
 from .base_handler import BaseHandler
 
 LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql"
@@ -16,7 +18,15 @@ type QueryType = dict[str, str | Mapping[str, Any]]
 class LeetCodeHandler(BaseHandler):
     """Base handler for LeetCode-related requests."""
 
-    async def graphql(self, name: str, query: QueryType) -> None:
+    @overload
+    async def graphql(self, name: str, query: QueryType) -> None: ...
+
+    @overload
+    async def graphql(
+        self, name: str, query: QueryType, returnJson=True
+    ) -> dict[str, Any]: ...
+
+    async def graphql(self, name: str, query: QueryType, returnJson=False):
         self.log.debug(f"Fetching LeetCode {name} data...")
         client = AsyncHTTPClient()
         req = HTTPRequest(
@@ -34,6 +44,8 @@ class LeetCodeHandler(BaseHandler):
             self.finish(json.dumps({"message": f"Failed to fetch LeetCode {name}"}))
             return
         else:
+            if returnJson:
+                return json.loads(resp.body)
             self.finish(resp.body)
 
     async def graphql_multi(
@@ -69,6 +81,55 @@ class LeetCodeHandler(BaseHandler):
             return {}
         else:
             return cast("dict[str, HTTPResponse]", responses)
+
+    async def get_question_detail(self, title_slug: str) -> dict[str, Any]:
+        resp = await self.graphql(
+            name="question_detail",
+            query={
+                "query": """query questionData($titleSlug: String!) {
+                                        question(titleSlug: $titleSlug) {
+                                            questionId
+                                            questionFrontendId
+                                            submitUrl
+                                            questionDetailUrl
+                                            title
+                                            titleSlug
+                                            content
+                                            isPaidOnly
+                                            difficulty
+                                            likes
+                                            dislikes
+                                            isLiked
+                                            similarQuestions
+                                            exampleTestcaseList
+                                            topicTags {
+                                                name
+                                                slug
+                                                translatedName
+                                            }
+                                            codeSnippets {
+                                                lang
+                                                langSlug
+                                                code
+                                            }
+                                            stats
+                                            hints
+                                            solution {
+                                                id
+                                                canSeeDetail
+                                                paidOnly
+                                                hasVideoSolution
+                                                paidOnlyVideo
+                                            }
+                                            status
+                                            sampleTestCase
+                                        }
+                                    }""",
+                "variables": {"titleSlug": title_slug},
+            },
+            returnJson=True,
+        )
+        return resp
 
 
 class LeetCodeProfileHandler(LeetCodeHandler):
@@ -264,3 +325,50 @@ class LeetCodeQuestionHandler(LeetCodeHandler):
                 },
             },
         )
+
+
+class CreateNotebookHandler(LeetCodeHandler):
+    route = r"notebook/create"
+
+    @tornado.web.authenticated
+    async def post(self):
+        body = self.get_json_body()
+        if not body:
+            self.set_status(400)
+            self.finish({"message": "Request body is required"})
+            return
+
+        body = cast("dict[str, str]", body)
+        title_slug = cast(str, body.get("titleSlug", ""))
+        if not title_slug:
+            self.set_status(400)
+            self.finish({"message": "titleSlug is required"})
+            return
+
+        question = await self.get_question_detail(title_slug)
+        question = question.get("data", {}).get("question")
+        if not question:
+            self.set_status(404)
+            self.finish({"message": "Question not found"})
+            return
+
+        self.log.info(question)
+
+        notebook_generator = self.settings.get("notebook_generator")
+        if not notebook_generator:
+            template_path = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)),
+                "..",
+                "utils",
+                "notebook.template.json",
+            )
+            if not os.path.exists(template_path):
+                self.set_status(500)
+                self.finish({"message": "Notebook template not found"})
+                return
+
+            notebook_generator = NotebookGenerator(template_path)
+            self.settings.update(notebook_generator=notebook_generator)
+
+        file_path = notebook_generator.generate(question)
+        self.finish({"filePath": file_path})

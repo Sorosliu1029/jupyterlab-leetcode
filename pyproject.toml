@@ -23,8 +23,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "jupyter_server>=2.4.0,<3"
-  # TODO: fill this
+    "jupyter_server>=2.4.0,<3",
+    "browser-cookie3",
+    # TODO: fill this
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 

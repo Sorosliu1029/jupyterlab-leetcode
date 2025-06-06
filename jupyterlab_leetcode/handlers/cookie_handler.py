@@ -8,6 +8,7 @@ import tornado
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httputil import HTTPHeaders
 
+from ..utils.utils import first
 from .base_handler import BaseHandler
 
 BROWSER_COOKIE_METHOD_MAP = {
@@ -43,8 +44,8 @@ class GetCookieHandler(BaseHandler):
             return
 
         cj = BROWSER_COOKIE_METHOD_MAP[browser](domain_name="leetcode.com")
-        cookie_session = next((c for c in cj if c.name == "LEETCODE_SESSION"), None)
-        cookie_csrf = next((c for c in cj if c.name == "csrftoken"), None)
+        cookie_session = first(cj, lambda c: c.name == "LEETCODE_SESSION")
+        cookie_csrf = first(cj, lambda c: c.name == "csrftoken")
         exist = bool(cookie_session and cookie_csrf)
         expired = exist and (
             cast(Cookie, cookie_session).is_expired()
