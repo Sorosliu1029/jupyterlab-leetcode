@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Any, Mapping, cast, overload
 
 import tornado
@@ -356,18 +355,7 @@ class CreateNotebookHandler(LeetCodeHandler):
 
         notebook_generator = self.settings.get("notebook_generator")
         if not notebook_generator:
-            template_path = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)),
-                "..",
-                "utils",
-                "notebook.template.json",
-            )
-            if not os.path.exists(template_path):
-                self.set_status(500)
-                self.finish({"message": "Notebook template not found"})
-                return
-
-            notebook_generator = NotebookGenerator(template_path)
+            notebook_generator = NotebookGenerator()
             self.settings.update(notebook_generator=notebook_generator)
 
         file_path = notebook_generator.generate(question)

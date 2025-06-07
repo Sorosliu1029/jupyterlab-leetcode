@@ -1,7 +1,3 @@
-"""
-Use LeetCode's GraphQL API to generate question notebook
-"""
-
 import json
 import os
 import re
@@ -16,7 +12,12 @@ def get_folder_for(qid: int, interval: int) -> str:
 
 
 class NotebookGenerator:
-    def __init__(self, template_path):
+    def __init__(self):
+        template_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "notebook.template.json",
+        )
+
         with open(template_path, "rt") as f:
             self.template = json.load(f)
 
