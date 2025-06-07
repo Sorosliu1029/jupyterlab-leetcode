@@ -4,6 +4,7 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 import LeetCodeWidget from './widget';
 
@@ -16,11 +17,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: PLUGIN_ID,
   description: 'Integrate LeetCode into beloved Jupyter.',
   autoStart: true,
-  requires: [ICommandPalette],
+  requires: [ICommandPalette, IDocumentManager],
   optional: [ILayoutRestorer],
   activate: (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
+    docManager: IDocumentManager,
     restorer: ILayoutRestorer | null
   ) => {
     let leetcodeWidget: LeetCodeWidget;
@@ -30,7 +32,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       label: 'Open LeetCode Widget',
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
-          leetcodeWidget = new LeetCodeWidget();
+          leetcodeWidget = new LeetCodeWidget(docManager);
         }
         if (!tracker.has(leetcodeWidget)) {
           tracker.add(leetcodeWidget);

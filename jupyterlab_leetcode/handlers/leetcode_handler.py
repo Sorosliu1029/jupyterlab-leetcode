@@ -351,8 +351,6 @@ class CreateNotebookHandler(LeetCodeHandler):
             self.finish({"message": "Question not found"})
             return
 
-        self.log.info(question)
-
         notebook_generator = self.settings.get("notebook_generator")
         if not notebook_generator:
             notebook_generator = NotebookGenerator()

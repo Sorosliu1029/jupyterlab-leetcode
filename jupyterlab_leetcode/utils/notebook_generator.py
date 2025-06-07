@@ -137,9 +137,9 @@ class NotebookGenerator:
         func_name = func_match[1]
         run_cell["source"] = [f"Solution().{func_name}()"]
 
-    def __dump(self, q, base_dir="."):
+    def __dump(self, q):
         qid = q["questionFrontendId"]
-        directory = os.path.join(base_dir, get_folder_for(int(qid), 50))
+        directory = get_folder_for(int(qid), 50)
         if not os.path.exists(directory):
             os.mkdir(directory)
 

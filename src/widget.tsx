@@ -1,10 +1,13 @@
 import { ReactWidget } from '@jupyterlab/ui-components';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import React, { StrictMode, useEffect, useState } from 'react';
 import LandingPage from './components/LandingPage';
 import LeetCode from './components/LeetCode';
 import { getCookie } from './services/cookie';
 
-const LeetCodeComponent = (): JSX.Element => {
+const LeetCodeComponent: React.FC<{ docManager: IDocumentManager }> = ({
+  docManager
+}) => {
   const [cookieLoggedIn, setCookieLoggedIn] = useState('');
 
   useEffect(() => {
@@ -22,23 +25,26 @@ const LeetCodeComponent = (): JSX.Element => {
   });
 
   return cookieLoggedIn ? (
-    <LeetCode />
+    <LeetCode docManager={docManager} />
   ) : (
     <LandingPage setCookieLoggedIn={b => setCookieLoggedIn(b)} />
   );
 };
 
 class LeetCodeWidget extends ReactWidget {
-  constructor() {
+  docManager: IDocumentManager;
+
+  constructor(docManager: IDocumentManager) {
     super();
     this.id = 'JupyterlabLeetcodeWidget';
     this.addClass('jupyterlab-leetcode-widget');
+    this.docManager = docManager;
   }
 
-  protected render(): JSX.Element {
+  render(): JSX.Element {
     return (
       <StrictMode>
-        <LeetCodeComponent />
+        <LeetCodeComponent docManager={this.docManager} />
       </StrictMode>
     );
   }

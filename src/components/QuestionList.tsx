@@ -3,7 +3,9 @@ import { listQuestions } from '../services/leetcode';
 import { LeetCodeQuestion } from '../types/leetcode';
 import QuestionItem from './QuestionItem';
 
-const QuestionList: React.FC = () => {
+const QuestionList: React.FC<{ openNotebook: (p: string) => void }> = ({
+  openNotebook
+}) => {
   const [skip, setSkip] = useState(0);
   const limit = 100;
   const [keyword, setKeyword] = useState('');
@@ -44,7 +46,11 @@ const QuestionList: React.FC = () => {
       {questions.length > 0 ? (
         <div>
           {questions.map(q => (
-            <QuestionItem key={q.id} question={q} />
+            <QuestionItem
+              key={q.id}
+              question={q}
+              onGenerateSuccess={(path: string) => openNotebook(path)}
+            />
           ))}
         </div>
       ) : null}

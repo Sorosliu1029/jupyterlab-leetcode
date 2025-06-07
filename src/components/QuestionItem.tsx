@@ -2,9 +2,10 @@ import React from 'react';
 import { LeetCodeQuestion } from '../types/leetcode';
 import { generateNotebook } from '../services/notebook';
 
-const QuestionItem: React.FC<{ question: LeetCodeQuestion }> = ({
-  question
-}) => {
+const QuestionItem: React.FC<{
+  question: LeetCodeQuestion;
+  onGenerateSuccess: (p: string) => void;
+}> = ({ question, onGenerateSuccess }) => {
   return (
     <div>
       <a
@@ -13,7 +14,19 @@ const QuestionItem: React.FC<{ question: LeetCodeQuestion }> = ({
       >
         {question.title}
       </a>
-      <button onClick={() => generateNotebook(question.titleSlug)}>C</button>
+      <button
+        onClick={() => {
+          generateNotebook(question.titleSlug).then(r => {
+            console.log('generateNotebook', r);
+            if (r) {
+              const { filePath } = r;
+              onGenerateSuccess(filePath);
+            }
+          });
+        }}
+      >
+        C
+      </button>
     </div>
   );
 };
