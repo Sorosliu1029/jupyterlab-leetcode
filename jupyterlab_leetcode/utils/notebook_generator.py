@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import typing
 
 from .utils import first
 
@@ -17,9 +18,17 @@ class NotebookGenerator:
             os.path.dirname(os.path.realpath(__file__)),
             "notebook.template.json",
         )
-
         with open(template_path, "rt") as f:
             self.template = json.load(f)
+
+        self.typing_regex = re.compile(
+            "|".join(
+                # '|' is matched by order
+                sorted(
+                    filter(lambda t: t[0].isupper(), dir(typing)), key=len, reverse=True
+                )
+            )
+        )
 
     def __populate_metadata(self, q):
         self.template["metadata"]["language_info"]["version"] = "{}.{}.{}".format(
@@ -84,7 +93,13 @@ class NotebookGenerator:
         if not test_cell:
             return
 
+        # TODO: parse test case
         test_cell["source"] = ["#### Sample Test Case\n", q["sampleTestCase"]]
+        test_cell["metadata"]["exampleTestcaseList"] = q["exampleTestcaseList"]
+
+    def __extract_type(self, code) -> list[str]:
+        _, args = self.__parse_code(code)
+        return self.typing_regex.findall(args)
 
     def __populate_code(self, q):
         code_cell = first(
@@ -99,43 +114,56 @@ class NotebookGenerator:
 
         snippet = code_snippet["code"]
         pre_solution_index = snippet.find("class Solution:")
-        pre_solution = None
-        if pre_solution_index > 0:
-            pre_solution = snippet[:pre_solution_index]
-            snippet = snippet[pre_solution_index:]
+        pre_solution = snippet[:pre_solution_index]
+        snippet = snippet[pre_solution_index:]
         code_cell["source"] = [snippet + "pass"]
         code_cell["metadata"]["isSolutionCode"] = True
 
-        if pre_solution:
-            code_cell_index = first(
-                enumerate(self.template["cells"]),
-                lambda ic: ic[1]["metadata"]["id"] == "code",
+        types = self.__extract_type(snippet)
+        typing_import = f"from typing import {' '.join(set(types))}" if types else None
+        source = list(filter(None, [typing_import, pre_solution.strip(" \n")]))
+        if source:
+            pre_code_cell = first(
+                self.template["cells"], lambda c: c["metadata"]["id"] == "pre_code"
             )
-            if code_cell_index is not None:
-                self.template["cells"].insert(
-                    code_cell_index[0],
-                    {
-                        "cell_type": "code",
-                        "execution_count": None,
-                        "metadata": {"id": "pre_code"},
-                        "outputs": [],
-                        "source": [pre_solution.strip(" \n")],
-                    },
+            if pre_code_cell:
+                pre_code_cell["source"] = source
+            else:
+                code_cell_index = first(
+                    enumerate(self.template["cells"]),
+                    lambda ic: ic[1]["metadata"]["id"] == "code",
                 )
+                if code_cell_index is not None:
+                    self.template["cells"].insert(
+                        code_cell_index[0],
+                        {
+                            "cell_type": "code",
+                            "execution_count": None,
+                            "metadata": {"id": "pre_code"},
+                            "outputs": [],
+                            "source": source,
+                        },
+                    )
 
         return snippet
+
+    def __parse_code(self, code) -> tuple[str, str]:
+        match = re.search(r"class Solution:\s+def (.*?)\(self,(.*)", code)
+        if not match:
+            return ("", "")
+        return (match[1], match[2])
 
     def __populate_run(self, snippet):
         run_cell = first(self.template["cells"], lambda c: c["metadata"]["id"] == "run")
         if not run_cell:
             return
 
-        func_match = re.search(r"class Solution:\s+def (.*?)\(self,", snippet)
-        if not func_match:
+        # TODO: fill in test case
+        func_name, _ = self.__parse_code(snippet)
+        if not func_name:
             return
-
-        func_name = func_match[1]
         run_cell["source"] = [f"Solution().{func_name}()"]
+        # TODO: multiple test case run
 
     def __dump(self, q):
         qid = q["questionFrontendId"]
