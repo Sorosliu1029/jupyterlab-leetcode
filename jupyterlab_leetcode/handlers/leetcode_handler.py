@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Any, Mapping, cast, overload
 
 import tornado
@@ -7,9 +8,11 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPResponse
 from tornado.httputil import HTTPHeaders
 
 from ..utils.notebook_generator import NotebookGenerator
+from ..utils.utils import first
 from .base_handler import BaseHandler
 
-LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql"
+LEETCODE_URL = "https://leetcode.com"
+LEETCODE_GRAPHQL_URL = f"{LEETCODE_URL}/graphql"
 
 type QueryType = dict[str, str | Mapping[str, Any]]
 
@@ -80,6 +83,25 @@ class LeetCodeHandler(BaseHandler):
             return {}
         else:
             return cast("dict[str, HTTPResponse]", responses)
+
+    async def request_api(self, url: str, method: str, body: Mapping[str, Any]):
+        self.log.debug(f"Requesting LeetCode API: {url} with method {method}")
+        client = AsyncHTTPClient()
+        req = HTTPRequest(
+            url=f"{LEETCODE_URL}{url}",
+            method=method,
+            headers=HTTPHeaders(self.settings.get("leetcode_headers", {})),
+            body=json.dumps(body),
+        )
+        try:
+            resp = await client.fetch(req)
+        except Exception as e:
+            self.log.error(f"Error requesting LeetCode API: {e}")
+            self.set_status(500)
+            self.finish(json.dumps({"message": "Failed to request LeetCode API"}))
+            return None
+        else:
+            return json.loads(resp.body) if resp.body else {}
 
     async def get_question_detail(self, title_slug: str) -> dict[str, Any]:
         resp = await self.graphql(
@@ -358,3 +380,85 @@ class CreateNotebookHandler(LeetCodeHandler):
 
         file_path = notebook_generator.generate(question)
         self.finish({"filePath": file_path})
+
+
+class SubmitNotebookHandler(LeetCodeHandler):
+    route = r"notebook/submit"
+
+    def get_solution(self, notebook):
+        solution_cell = first(
+            notebook["cells"],
+            lambda c: c["cell_type"] == "code" and c["metadata"].get("isSolutionCode"),
+        )
+        if not solution_cell:
+            return
+
+        code = "".join(solution_cell["source"]).strip()
+        return code if not code.endswith("pass") else None
+
+    async def submit(self, file_path: str):
+        if not os.path.exists(file_path):
+            self.set_status(404)
+            self.finish({"message": "Notebook file not found"})
+            return
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            notebook = json.load(f)
+
+        question_info = notebook["metadata"]["leetcode_question_info"]
+        if not question_info:
+            self.set_status(400)
+            self.finish({"message": "Notebook does not contain LeetCode question info"})
+            return
+
+        question_frontend_id = question_info["questionFrontendId"]
+        question_submit_id = question_info["questionId"]
+        submit_url = question_info["submitUrl"]
+        sample_testcase = question_info["sampleTestCase"]
+        if (
+            not question_frontend_id
+            or not question_submit_id
+            or not submit_url
+            or not sample_testcase
+        ):
+            self.set_status(400)
+            self.finish({"message": "Invalid question info in notebook"})
+            return
+
+        solution_code = self.get_solution(notebook)
+        if not solution_code:
+            self.set_status(400)
+            self.finish({"message": "No solution code found in notebook"})
+            return
+
+        resp = await self.request_api(
+            submit_url,
+            "POST",
+            {
+                "question_id": str(question_submit_id),
+                "data_input": sample_testcase,
+                "lang": "python3",
+                "typed_code": solution_code,
+                "test_mode": False,
+                "judge_type": "large",
+            },
+        )
+
+        self.finish(resp)
+
+    @tornado.web.authenticated
+    async def post(self):
+        body = self.get_json_body()
+        if not body:
+            self.set_status(400)
+            self.finish({"message": "Request body is required"})
+            return
+
+        body = cast("dict[str, str]", body)
+        file_path = cast(str, body.get("filePath", ""))
+        if not file_path:
+            self.set_status(400)
+            self.finish({"message": "filePath is required"})
+            return
+
+        await self.submit(file_path)

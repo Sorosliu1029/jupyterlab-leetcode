@@ -37,10 +37,11 @@ class NotebookGenerator:
 
         metadata_question_info = self.template["metadata"]["leetcode_question_info"]
         metadata_question_info["submitUrl"] = q["submitUrl"]
-        metadata_question_info["sampleTestCase"] = q["sampleTestCase"]
         metadata_question_info["questionId"] = q["questionId"]
         metadata_question_info["questionFrontendId"] = q["questionFrontendId"]
         metadata_question_info["questionDetailUrl"] = q["questionDetailUrl"]
+        metadata_question_info["sampleTestCase"] = q["sampleTestCase"]
+        metadata_question_info["exampleTestcaseList"] = q["exampleTestcaseList"]
 
     def __populate_title(self, q):
         title_cell = first(

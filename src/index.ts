@@ -5,8 +5,9 @@ import {
 } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { NotebookPanel } from '@jupyterlab/notebook';
 
-import LeetCodeWidget from './widget';
+import { LeetCodeMainWidget, LeetCodeHeaderWidget } from './widget';
 
 const PLUGIN_ID = 'jupyterlab-leetcode:plugin';
 
@@ -25,14 +26,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     docManager: IDocumentManager,
     restorer: ILayoutRestorer | null
   ) => {
-    let leetcodeWidget: LeetCodeWidget;
+    let leetcodeWidget: LeetCodeMainWidget;
 
     const command = 'leetcode-widget:open';
     app.commands.addCommand(command, {
       label: 'Open LeetCode Widget',
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
-          leetcodeWidget = new LeetCodeWidget(docManager);
+          leetcodeWidget = new LeetCodeMainWidget(app, docManager);
         }
         if (!tracker.has(leetcodeWidget)) {
           tracker.add(leetcodeWidget);
@@ -43,9 +44,24 @@ const plugin: JupyterFrontEndPlugin<void> = {
         app.shell.activateById(leetcodeWidget.id);
       }
     });
-
     palette.addItem({ command, category: 'LeetCode' });
-    const tracker = new WidgetTracker<LeetCodeWidget>({
+
+    const addHeaderCommand = 'leetcode-widget:add-header';
+    app.commands.addCommand(addHeaderCommand, {
+      label: 'Add Header to LeetCode Widget',
+      caption: 'Add Header to LeetCode Widget',
+      execute: () => {
+        const main = app.shell.currentWidget;
+        if (main instanceof NotebookPanel) {
+          const widget = new LeetCodeHeaderWidget(main);
+          widget.node.style.minHeight = '20px';
+          main.contentHeader.addWidget(widget);
+        }
+      }
+    });
+    palette.addItem({ command: addHeaderCommand, category: 'LeetCode' });
+
+    const tracker = new WidgetTracker<LeetCodeMainWidget>({
       namespace: 'leetcode-widget'
     });
     if (restorer) {

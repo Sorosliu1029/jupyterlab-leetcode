@@ -6,3 +6,10 @@ export async function generateNotebook(titleSlug: string) {
     body: JSON.stringify({ titleSlug })
   }).catch(() => null);
 }
+
+export async function submitNotebook(path: string) {
+  return requestAPI<void>('/notebook/submit', {
+    method: 'POST',
+    body: JSON.stringify({ filePath: path })
+  }).catch(() => null);
+}

@@ -4,7 +4,8 @@ from .base_handler import BaseHandler
 from .cookie_handler import GetCookieHandler
 from .leetcode_handler import (CreateNotebookHandler, LeetCodeProfileHandler,
                                LeetCodeQuestionHandler,
-                               LeetCodeStatisticsHandler)
+                               LeetCodeStatisticsHandler,
+                               SubmitNotebookHandler)
 
 
 def setup_handlers(web_app):
@@ -16,6 +17,7 @@ def setup_handlers(web_app):
         LeetCodeStatisticsHandler,
         LeetCodeQuestionHandler,
         CreateNotebookHandler,
+        SubmitNotebookHandler,
     ]
 
     web_app.add_handlers(
