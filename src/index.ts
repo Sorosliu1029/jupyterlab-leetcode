@@ -14,6 +14,7 @@ import {
 } from '@jupyterlab/docmanager';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { ILauncher } from '@jupyterlab/launcher';
+import { reactIcon } from '@jupyterlab/ui-components';
 
 import { LeetCodeMainWidget, LeetCodeHeaderWidget } from './widget';
 
@@ -40,12 +41,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const command = 'leetcode-widget:open';
     app.commands.addCommand(command, {
+      caption: 'Open LeetCode Widget',
       label: 'Open LeetCode Widget',
+      icon: args => (args['isPalette'] ? undefined : reactIcon),
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
           leetcodeWidget = new MainAreaWidget<LeetCodeMainWidget>({
             content: new LeetCodeMainWidget(app, docManager)
           });
+          leetcodeWidget.title.label = 'LeetCode Widget';
+          leetcodeWidget.title.icon = reactIcon;
         }
         if (!tracker.has(leetcodeWidget)) {
           tracker.add(leetcodeWidget);
