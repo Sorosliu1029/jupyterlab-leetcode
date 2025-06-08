@@ -8,15 +8,13 @@ import { requestAPI } from './handler';
 export async function getProfile() {
   return requestAPI<{ data: { userStatus: LeetCodeProfile } }>(
     '/leetcode/profile'
-  )
-    .then(d => d.data.userStatus)
-    .catch(() => null);
+  ).then(d => d.data.userStatus);
 }
 
 export async function getStatistics(username: string) {
   return requestAPI<LeetCodeStatistics>(
     `/leetcode/statistics?username=${username}`
-  ).catch(() => null);
+  );
 }
 
 export async function listQuestions(
@@ -36,7 +34,5 @@ export async function listQuestions(
   }>('/leetcode/questions', {
     method: 'POST',
     body: JSON.stringify({ skip, limit, keyword })
-  })
-    .then(d => d.data)
-    .catch(() => null);
+  }).then(d => d.data);
 }

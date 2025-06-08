@@ -17,11 +17,13 @@ const LeetCodeMainArea: React.FC<{
       .find(cookie => cookie.startsWith('leetcode_browser='))
       ?.split('=')[1];
     if (leetcode_browser) {
-      getCookie(leetcode_browser).then(resp => {
-        if (resp['checked']) {
-          setCookieLoggedIn(leetcode_browser);
-        }
-      });
+      getCookie(leetcode_browser)
+        .then(resp => {
+          if (resp['checked']) {
+            setCookieLoggedIn(leetcode_browser);
+          }
+        })
+        .catch(console.error);
     }
   });
 

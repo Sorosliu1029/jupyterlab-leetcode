@@ -59,9 +59,11 @@ const BrowserCookie: React.FC<{
       return;
     }
 
-    getCookie(browser).then(resp => {
-      setChecked(resp['checked']);
-    });
+    getCookie(browser)
+      .then(resp => {
+        setChecked(resp['checked']);
+      })
+      .catch(console.error);
   };
 
   return (

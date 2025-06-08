@@ -16,13 +16,11 @@ const QuestionItem: React.FC<{
       </a>
       <button
         onClick={() => {
-          generateNotebook(question.titleSlug).then(r => {
-            console.log('generateNotebook', r);
-            if (r) {
-              const { filePath } = r;
+          generateNotebook(question.titleSlug)
+            .then(({ filePath }) => {
               onGenerateSuccess(filePath);
-            }
-          });
+            })
+            .catch(console.error);
         }}
       >
         C

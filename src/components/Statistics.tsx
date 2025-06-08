@@ -6,9 +6,11 @@ const Statistics: React.FC<{ username: string }> = ({ username }) => {
   const [statistics, setStatistics] = useState<LeetCodeStatistics | null>(null);
 
   useEffect(() => {
-    getStatistics(username).then(d => {
-      setStatistics(d);
-    });
+    getStatistics(username)
+      .then(d => {
+        setStatistics(d);
+      })
+      .catch(console.error);
   }, []);
 
   return statistics ? (

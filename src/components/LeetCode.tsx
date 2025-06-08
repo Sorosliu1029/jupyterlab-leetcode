@@ -31,13 +31,15 @@ const LeetCode: React.FC<{
   const [profile, setProfile] = useState<LeetCodeProfile | null>(null);
 
   useEffect(() => {
-    getProfile().then(profile => {
-      if (!profile || !profile.isSignedIn) {
-        alert('Please sign in to LeetCode.');
-        return;
-      }
-      setProfile(profile);
-    });
+    getProfile()
+      .then(profile => {
+        if (!profile.isSignedIn) {
+          alert('Please sign in to LeetCode.');
+          return;
+        }
+        setProfile(profile);
+      })
+      .catch(console.error);
   }, []);
 
   const openNoteBook = (path: string) => {

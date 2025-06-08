@@ -44,3 +44,24 @@ export async function requestAPI<T>(
 
   return data;
 }
+
+export function makeWebSocket(endPoint: string) {
+  const settings = ServerConnection.makeSettings();
+  const requestUrl = URLExt.join(
+    settings.wsUrl,
+    'jupyterlab-leetcode', // API Namespace
+    'websocket', // WebSocket endpoint
+    endPoint
+  );
+  const ws = new WebSocket(requestUrl);
+  ws.onopen = () => {
+    console.debug(`WebSocket connection to ${requestUrl} opened`);
+  };
+  ws.onclose = () => {
+    console.debug(`WebSocket connection to ${requestUrl} closed`);
+  };
+  ws.onerror = error => {
+    console.error(`WebSocket to ${requestUrl} error:`, error);
+  };
+  return ws;
+}

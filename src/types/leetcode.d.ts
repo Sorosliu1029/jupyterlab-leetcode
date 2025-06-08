@@ -67,3 +67,46 @@ export type LeetCodeQuestion = {
   titleSlug: string;
   topicTags: LeetCodeTopicTag[];
 };
+
+export type LeetCodeWebSocketMessage = {
+  submissionId: number;
+} & (
+  | {
+      type: 'error';
+      error: string;
+    }
+  | {
+      type: 'submissionResult';
+      result: LeetCodeSubmissionResult;
+    }
+);
+
+export type LeetCodeSubmissionResult =
+  | {
+      state: 'PENDING' | 'STARTED';
+    }
+  | {
+      state: 'SUCCESS';
+      status_code: number;
+      run_success: boolean;
+      status_runtime: string;
+      memory: number;
+      display_runtime: string;
+      elapsed_time: number;
+      compare_result: string;
+      code_output: string;
+      std_output: string;
+      last_testcase: string;
+      expected_output: string;
+      task_finish_time: number;
+      task_name: string;
+      finished: boolean;
+      total_correct: number;
+      total_testcases: number;
+      runtime_percentile: number | null;
+      status_memory: string;
+      memory_percentile: number | null;
+      input_formatted: string;
+      input: string;
+      status_msg: string;
+    };

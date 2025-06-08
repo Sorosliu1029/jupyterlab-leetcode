@@ -17,21 +17,20 @@ const QuestionList: React.FC<{ openNotebook: (p: string) => void }> = ({
   useEffect(() => setSkip(0), [keyword]);
 
   useEffect(() => {
-    listQuestions(keyword, skip, limit).then(r => {
-      if (!r) {
-        return;
-      }
-      const {
-        questions: fetchedQuestions,
-        hasMore: fetchedHasMore,
-        finishedLength: fetchedFinishedLength,
-        totalLength: fetchedTotalLength
-      } = r.problemsetQuestionListV2;
-      setQuestions(fetchedQuestions);
-      setHasMore(fetchedHasMore);
-      setFinishedLength(fetchedFinishedLength);
-      setTotalLength(fetchedTotalLength);
-    });
+    listQuestions(keyword, skip, limit)
+      .then(({ problemsetQuestionListV2 }) => {
+        const {
+          questions: fetchedQuestions,
+          hasMore: fetchedHasMore,
+          finishedLength: fetchedFinishedLength,
+          totalLength: fetchedTotalLength
+        } = problemsetQuestionListV2;
+        setQuestions(fetchedQuestions);
+        setHasMore(fetchedHasMore);
+        setFinishedLength(fetchedFinishedLength);
+        setTotalLength(fetchedTotalLength);
+      })
+      .catch(console.error);
   }, [keyword, skip]);
 
   return (

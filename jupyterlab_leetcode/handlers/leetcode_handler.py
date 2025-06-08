@@ -1,45 +1,44 @@
+import asyncio
 import json
 import os
-from typing import Any, Mapping, cast, overload
+from collections.abc import Mapping
+from typing import Any, cast, overload
 
 import tornado
 from tornado.gen import multi
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPResponse
-from tornado.httputil import HTTPHeaders
+from tornado.httpclient import HTTPResponse
+from tornado.httputil import HTTPServerRequest
+from tornado.websocket import WebSocketHandler
 
 from ..utils.notebook_generator import NotebookGenerator
-from ..utils.utils import first
+from ..utils.utils import first, request
 from .base_handler import BaseHandler
 
 LEETCODE_URL = "https://leetcode.com"
 LEETCODE_GRAPHQL_URL = f"{LEETCODE_URL}/graphql"
-
-type QueryType = dict[str, str | Mapping[str, Any]]
+MAX_CHECK_ATTEMPTS = 10
 
 
 class LeetCodeHandler(BaseHandler):
     """Base handler for LeetCode-related requests."""
 
     @overload
-    async def graphql(self, name: str, query: QueryType) -> None: ...
+    async def graphql(self, name: str, query: Mapping[str, Any]) -> None: ...
 
     @overload
     async def graphql(
-        self, name: str, query: QueryType, returnJson=True
+        self, name: str, query: Mapping[str, Any], returnJson=True
     ) -> dict[str, Any]: ...
 
-    async def graphql(self, name: str, query: QueryType, returnJson=False):
+    async def graphql(self, name: str, query: Mapping[str, Any], returnJson=False):
         self.log.debug(f"Fetching LeetCode {name} data...")
-        client = AsyncHTTPClient()
-        req = HTTPRequest(
-            url=LEETCODE_GRAPHQL_URL,
-            method="POST",
-            headers=HTTPHeaders(self.settings.get("leetcode_headers", {})),
-            body=json.dumps(query),
-        )
-
         try:
-            resp = await client.fetch(req)
+            resp = await request(
+                LEETCODE_GRAPHQL_URL,
+                method="POST",
+                headers=self.settings.get("leetcode_headers", {}),
+                body=query,
+            )
         except Exception as e:
             self.log.error(f"Error fetching LeetCode {name}: {e}")
             self.set_status(500)
@@ -51,23 +50,18 @@ class LeetCodeHandler(BaseHandler):
             self.finish(resp.body)
 
     async def graphql_multi(
-        self, name: str, queries: dict[str, QueryType]
+        self, name: str, queries: dict[str, Mapping[str, Any]]
     ) -> dict[str, HTTPResponse]:
         self.log.debug(f"Fetching LeetCode {name} data...")
-        client = AsyncHTTPClient()
         request_futures = dict(
             map(
                 lambda kv: (
                     kv[0],
-                    client.fetch(
-                        HTTPRequest(
-                            url=LEETCODE_GRAPHQL_URL,
-                            method="POST",
-                            headers=HTTPHeaders(
-                                self.settings.get("leetcode_headers", {})
-                            ),
-                            body=json.dumps(kv[1]),
-                        ),
+                    request(
+                        url=LEETCODE_GRAPHQL_URL,
+                        method="POST",
+                        headers=self.settings.get("leetcode_headers", {}),
+                        body=kv[1],
                     ),
                 ),
                 queries.items(),
@@ -83,74 +77,6 @@ class LeetCodeHandler(BaseHandler):
             return {}
         else:
             return cast("dict[str, HTTPResponse]", responses)
-
-    async def request_api(self, url: str, method: str, body: Mapping[str, Any]):
-        self.log.debug(f"Requesting LeetCode API: {url} with method {method}")
-        client = AsyncHTTPClient()
-        req = HTTPRequest(
-            url=f"{LEETCODE_URL}{url}",
-            method=method,
-            headers=HTTPHeaders(self.settings.get("leetcode_headers", {})),
-            body=json.dumps(body),
-        )
-        try:
-            resp = await client.fetch(req)
-        except Exception as e:
-            self.log.error(f"Error requesting LeetCode API: {e}")
-            self.set_status(500)
-            self.finish(json.dumps({"message": "Failed to request LeetCode API"}))
-            return None
-        else:
-            return json.loads(resp.body) if resp.body else {}
-
-    async def get_question_detail(self, title_slug: str) -> dict[str, Any]:
-        resp = await self.graphql(
-            name="question_detail",
-            query={
-                "query": """query questionData($titleSlug: String!) {
-                                        question(titleSlug: $titleSlug) {
-                                            questionId
-                                            questionFrontendId
-                                            submitUrl
-                                            questionDetailUrl
-                                            title
-                                            titleSlug
-                                            content
-                                            isPaidOnly
-                                            difficulty
-                                            likes
-                                            dislikes
-                                            isLiked
-                                            similarQuestions
-                                            exampleTestcaseList
-                                            topicTags {
-                                                name
-                                                slug
-                                                translatedName
-                                            }
-                                            codeSnippets {
-                                                lang
-                                                langSlug
-                                                code
-                                            }
-                                            stats
-                                            hints
-                                            solution {
-                                                id
-                                                canSeeDetail
-                                                paidOnly
-                                                hasVideoSolution
-                                                paidOnlyVideo
-                                            }
-                                            status
-                                            sampleTestCase
-                                        }
-                                    }""",
-                "variables": {"titleSlug": title_slug},
-            },
-            returnJson=True,
-        )
-        return resp
 
 
 class LeetCodeProfileHandler(LeetCodeHandler):
@@ -323,14 +249,8 @@ class LeetCodeQuestionHandler(LeetCodeHandler):
                     "categorySlug": "algorithms",
                     "filters": {
                         "filterCombineType": "ALL",
-                        "statusFilter": {
-                            "questionStatuses": ["TO_DO"],
-                            "operator": "IS",
-                        },
-                        "difficultyFilter": {
-                            "difficulties": ["MEDIUM", "HARD"],
-                            "operator": "IS",
-                        },
+                        "statusFilter": {"questionStatuses": [], "operator": "IS"},
+                        "difficultyFilter": {"difficulties": [], "operator": "IS"},
                         "languageFilter": {"languageSlugs": [], "operator": "IS"},
                         "topicFilter": {"topicSlugs": [], "operator": "IS"},
                         "acceptanceFilter": {},
@@ -350,6 +270,55 @@ class LeetCodeQuestionHandler(LeetCodeHandler):
 
 class CreateNotebookHandler(LeetCodeHandler):
     route = r"notebook/create"
+
+    async def get_question_detail(self, title_slug: str) -> dict[str, Any]:
+        resp = await self.graphql(
+            name="question_detail",
+            query={
+                "query": """query questionData($titleSlug: String!) {
+                                        question(titleSlug: $titleSlug) {
+                                            questionId
+                                            questionFrontendId
+                                            submitUrl
+                                            questionDetailUrl
+                                            title
+                                            titleSlug
+                                            content
+                                            isPaidOnly
+                                            difficulty
+                                            likes
+                                            dislikes
+                                            isLiked
+                                            similarQuestions
+                                            exampleTestcaseList
+                                            topicTags {
+                                                name
+                                                slug
+                                                translatedName
+                                            }
+                                            codeSnippets {
+                                                lang
+                                                langSlug
+                                                code
+                                            }
+                                            stats
+                                            hints
+                                            solution {
+                                                id
+                                                canSeeDetail
+                                                paidOnly
+                                                hasVideoSolution
+                                                paidOnlyVideo
+                                            }
+                                            status
+                                            sampleTestCase
+                                        }
+                                    }""",
+                "variables": {"titleSlug": title_slug},
+            },
+            returnJson=True,
+        )
+        return resp
 
     @tornado.web.authenticated
     async def post(self):
@@ -431,10 +400,11 @@ class SubmitNotebookHandler(LeetCodeHandler):
             self.finish({"message": "No solution code found in notebook"})
             return
 
-        resp = await self.request_api(
-            submit_url,
-            "POST",
-            {
+        resp = await request(
+            f"{LEETCODE_URL}{submit_url}",
+            method="POST",
+            headers=self.settings.get("leetcode_headers", {}),
+            body={
                 "question_id": str(question_submit_id),
                 "data_input": sample_testcase,
                 "lang": "python3",
@@ -444,7 +414,7 @@ class SubmitNotebookHandler(LeetCodeHandler):
             },
         )
 
-        self.finish(resp)
+        self.finish(resp.body)
 
     @tornado.web.authenticated
     async def post(self):
@@ -462,3 +432,87 @@ class SubmitNotebookHandler(LeetCodeHandler):
             return
 
         await self.submit(file_path)
+
+
+class LeetCodeWebSocketSubmitHandler(WebSocketHandler):
+    route = r"websocket/submit"
+    fibonacci = [0, 1, 1, 2, 3, 5]
+
+    def __init__(
+        self,
+        application: tornado.web.Application,
+        request: HTTPServerRequest,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(application, request, **kwargs)
+        self.submission_id: int = 0
+        self.check_task: asyncio.Task | None = None
+        self.check_result: Mapping[str, Any] = {}
+
+    def open(self, *args: str, **kwargs: str):
+        self.submission_id = int(self.get_query_argument("submission_id"))
+        if self.submission_id:
+            self.check_task = asyncio.create_task(self.check())
+
+    async def check(self, cnt=0):
+        if cnt > MAX_CHECK_ATTEMPTS:
+            self.write_message(
+                {
+                    "type": "error",
+                    "error": "Submission check timed out",
+                    "submissionId": self.submission_id,
+                }
+            )
+            return
+
+        try:
+            resp = await request(
+                f"{LEETCODE_URL}/submissions/detail/{self.submission_id}/check/",
+                method="GET",
+                headers=self.settings.get("leetcode_headers", {}),
+            )
+        except Exception as e:
+            self.write_message(
+                {
+                    "type": "error",
+                    "error": "Submission check error",
+                    "submissionId": self.submission_id,
+                }
+            )
+            return
+
+        self.check_result = json.loads(resp.body)
+        print(
+            f"Checking submission {self.submission_id}, attempts: {cnt}, result: {self.check_result}"
+        )
+        self.write_message(
+            {
+                "type": "submissionResult",
+                "result": self.check_result,
+                "submissionId": self.submission_id,
+            }
+        )
+        state = self.check_result.get("state")
+        if state == "PENDING" or state == "STARTED":
+            await asyncio.sleep(self.fibonacci[min(cnt, len(self.fibonacci) - 1)])
+            await self.check(cnt + 1)
+
+    def on_message(self, message):
+        msg = json.loads(message)
+        if msg.get("submissionId") != self.submission_id:
+            self.write_message(
+                {
+                    "type": "error",
+                    "error": "Submission ID mismatch",
+                    "submissionId": self.submission_id,
+                }
+            )
+            return
+
+        self.write_message(
+            {
+                "type": "submissionResult",
+                "result": self.check_result,
+                "submissionId": self.submission_id,
+            }
+        )
