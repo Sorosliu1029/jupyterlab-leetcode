@@ -60,6 +60,7 @@
         "@jupyterlab/application": "^4.4.3",
         "@jupyterlab/apputils": "^4.5.3",
         "@jupyterlab/coreutils": "^6.0.0",
+        "@jupyterlab/launcher": "^4.4.3",
         "@jupyterlab/services": "^7.0.0",
         "@jupyterlab/settingregistry": "^4.0.0",
         "bowser": "^2.11.0"

@@ -3,12 +3,17 @@ import {
   JupyterFrontEndPlugin,
   ILayoutRestorer
 } from '@jupyterlab/application';
-import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
+import {
+  ICommandPalette,
+  WidgetTracker,
+  MainAreaWidget
+} from '@jupyterlab/apputils';
 import {
   IDocumentManager,
   IDocumentWidgetOpener
 } from '@jupyterlab/docmanager';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { ILauncher } from '@jupyterlab/launcher';
 
 import { LeetCodeMainWidget, LeetCodeHeaderWidget } from './widget';
 
@@ -22,34 +27,40 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description: 'Integrate LeetCode into beloved Jupyter.',
   autoStart: true,
   requires: [ICommandPalette, IDocumentManager, IDocumentWidgetOpener],
-  optional: [ILayoutRestorer],
+  optional: [ILayoutRestorer, ILauncher],
   activate: (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     docManager: IDocumentManager,
     docWidgetOpener: IDocumentWidgetOpener,
-    restorer: ILayoutRestorer | null
+    restorer: ILayoutRestorer | null,
+    launcher: ILauncher | null
   ) => {
-    let leetcodeWidget: LeetCodeMainWidget;
+    let leetcodeWidget: MainAreaWidget<LeetCodeMainWidget>;
 
     const command = 'leetcode-widget:open';
     app.commands.addCommand(command, {
       label: 'Open LeetCode Widget',
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
-          leetcodeWidget = new LeetCodeMainWidget(app, docManager);
+          leetcodeWidget = new MainAreaWidget<LeetCodeMainWidget>({
+            content: new LeetCodeMainWidget(app, docManager)
+          });
         }
         if (!tracker.has(leetcodeWidget)) {
           tracker.add(leetcodeWidget);
         }
         if (!leetcodeWidget.isAttached) {
-          app.shell.add(leetcodeWidget, 'right', { rank: 599 });
+          app.shell.add(leetcodeWidget, 'main');
         }
         app.shell.activateById(leetcodeWidget.id);
       }
     });
     palette.addItem({ command, category: 'LeetCode' });
-    const tracker = new WidgetTracker<LeetCodeMainWidget>({
+    if (launcher) {
+      launcher.add({ command, category: 'LeetCode', rank: 1 });
+    }
+    const tracker = new WidgetTracker<MainAreaWidget<LeetCodeMainWidget>>({
       namespace: 'leetcode-widget'
     });
     if (restorer) {
