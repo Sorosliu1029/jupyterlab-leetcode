@@ -1,5 +1,7 @@
 # jupyterlab_leetcode
 
+⚠️  STILL UNDER ACTIVE (but not rapid) DEVELOPMENT
+
 [![Github Actions Status](https://github.com/Sorosliu1029/jupyterlab-leetcode/workflows/Build/badge.svg)](https://github.com/Sorosliu1029/jupyterlab-leetcode/actions/workflows/build.yml)
 
 Integrate LeetCode into beloved Jupyter.
