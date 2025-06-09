@@ -348,7 +348,7 @@ class CreateNotebookHandler(LeetCodeHandler):
             self.settings.update(notebook_generator=notebook_generator)
 
         file_path = notebook_generator.generate(question)
-        self.finish({"filePath": file_path})
+        self.finish({"filePath": file_path, "question": question})
 
 
 class SubmitNotebookHandler(LeetCodeHandler):

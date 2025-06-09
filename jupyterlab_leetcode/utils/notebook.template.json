@@ -103,8 +103,7 @@
             },
             "outputs": [],
             "source": [
-                "s = Solution()\n",
-                "s.func()"
+                "Solution().func()"
             ]
         }
     ]

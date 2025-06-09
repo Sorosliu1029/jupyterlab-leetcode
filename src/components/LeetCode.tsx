@@ -46,14 +46,19 @@ const LeetCode: React.FC<{
   const openNoteBook = (path: string) => {
     const docWidget = docManager.openOrReveal(path);
     if (docWidget && docWidget instanceof NotebookPanel) {
-      let idx = 0;
-      for (const cell of docWidget.content.model?.cells ?? []) {
-        idx++;
-        if (cell.metadata['id'] === 'pre_code') {
-          docWidget.content.activeCellIndex = idx;
-          NotebookActions.run(docWidget.content);
+      docWidget.revealed.then(() => {
+        let idx = 0;
+        for (const cell of docWidget.content.model?.cells ?? []) {
+          if (cell.metadata['id'] === 'pre_code') {
+            docWidget.content.activeCellIndex = idx;
+            docWidget.context.ready.then(() => {
+              // FIXME: not running..., dont know why
+              NotebookActions.run(docWidget.content);
+            });
+          }
+          idx++;
         }
-      }
+      });
     }
   };
 

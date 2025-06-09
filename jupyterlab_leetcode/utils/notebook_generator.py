@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import re
@@ -87,6 +88,14 @@ class NotebookGenerator:
                 ]
             )
 
+    def __parse_test_case_list(self, cases: list[str]):
+        return "\n".join(
+            (
+                f"{i+1}. {'  \n'.join(map(lambda l: f'`{l}`', c.splitlines()))}"
+                for (i, c) in enumerate(cases)
+            )
+        )
+
     def __populate_test(self, q):
         test_cell = first(
             self.template["cells"], lambda c: c["metadata"]["id"] == "test"
@@ -94,8 +103,11 @@ class NotebookGenerator:
         if not test_cell:
             return
 
-        # TODO: parse test case
-        test_cell["source"] = ["#### Sample Test Case\n", q["sampleTestCase"]]
+        test_cell["source"] = [
+            "#### Test Case(s):\n\n",
+            self.__parse_test_case_list(q["exampleTestcaseList"]),
+        ]
+        test_cell["metadata"]["sampleTestCase"] = q["sampleTestCase"]
         test_cell["metadata"]["exampleTestcaseList"] = q["exampleTestcaseList"]
 
     def __extract_type(self, code) -> list[str]:
@@ -121,8 +133,8 @@ class NotebookGenerator:
         code_cell["metadata"]["isSolutionCode"] = True
 
         types = self.__extract_type(snippet)
-        typing_import = f"from typing import {' '.join(set(types))}" if types else None
-        source = list(filter(None, [typing_import, pre_solution.strip(" \n")]))
+        typing_import = f"from typing import {', '.join(set(types))}" if types else None
+        source = ["\n\n".join(filter(None, [typing_import, pre_solution.strip(" \n")]))]
         if source:
             pre_code_cell = first(
                 self.template["cells"], lambda c: c["metadata"]["id"] == "pre_code"
@@ -154,17 +166,37 @@ class NotebookGenerator:
             return ("", "")
         return (match[1], match[2])
 
-    def __populate_run(self, snippet):
-        run_cell = first(self.template["cells"], lambda c: c["metadata"]["id"] == "run")
-        if not run_cell:
+    def __populate_run(self, q, snippet):
+        run_cell_with_idx = first(
+            enumerate(self.template["cells"]),
+            lambda ic: ic[1]["metadata"]["id"] == "run",
+        )
+        if not run_cell_with_idx:
             return
 
-        # TODO: fill in test case
         func_name, _ = self.__parse_code(snippet)
         if not func_name:
             return
-        run_cell["source"] = [f"Solution().{func_name}()"]
-        # TODO: multiple test case run
+
+        idx, run_cell = run_cell_with_idx
+        cases = q["exampleTestcaseList"] or [q["sampleTestCase"]]
+        run_cells = []
+
+        def fill_case(case):
+            return f"Solution().{func_name}({case.replace('\n', ', ')})"
+
+        for i, case in enumerate(cases):
+            if i == 0:
+                run_cell["source"] = [fill_case(case)]
+                run_cells.append(run_cell)
+            else:
+                copied = copy.deepcopy(run_cell)
+                copied["metadata"]["id"] = f"run_{i}"
+                copied["source"] = [fill_case(case)]
+                run_cells.append(copied)
+
+        if run_cells:
+            self.template["cells"][idx : idx + 1] = run_cells
 
     def __dump(self, q):
         qid = q["questionFrontendId"]
@@ -185,6 +217,6 @@ class NotebookGenerator:
         self.__populate_extra(q)
         self.__populate_test(q)
         snippet = self.__populate_code(q)
-        self.__populate_run(snippet)
+        self.__populate_run(q, snippet)
         file_path = self.__dump(q)
         return file_path
