@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { JupyterFrontEnd, LabShell } from '@jupyterlab/application';
+import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { getProfile } from '../services/leetcode';
 import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
@@ -43,8 +44,17 @@ const LeetCode: React.FC<{
   }, []);
 
   const openNoteBook = (path: string) => {
-    // TODO: notebook.NotebookActions.runCells of pre-code cell
-    docManager.openOrReveal(path);
+    const docWidget = docManager.openOrReveal(path);
+    if (docWidget && docWidget instanceof NotebookPanel) {
+      let idx = 0;
+      for (const cell of docWidget.content.model?.cells ?? []) {
+        idx++;
+        if (cell.metadata['id'] === 'pre_code') {
+          docWidget.content.activeCellIndex = idx;
+          NotebookActions.run(docWidget.content);
+        }
+      }
+    }
   };
 
   return profile ? (
