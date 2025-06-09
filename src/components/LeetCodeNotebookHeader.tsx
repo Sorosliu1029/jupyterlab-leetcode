@@ -8,6 +8,29 @@ import {
   LeetCodeWebSocketMessage
 } from '../types/leetcode';
 
+const status2Emoji = (status: string) => {
+  switch (status) {
+    case 'Accepted':
+      return '😃';
+    case 'Wrong Answer':
+      return '😕';
+    case 'Time Limit Exceeded':
+      return '⏳';
+    case 'Memory Limit Exceeded':
+      return '💾';
+    case 'Runtime Error':
+      return '🚨';
+    case 'Internal Error':
+      return '⚠️';
+    default:
+      return '❓';
+  }
+};
+
+const formatMarkdown = (text: string) => {
+  return text.replace(/\n/g, '  \n');
+};
+
 const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
   notebook
 }) => {
@@ -77,33 +100,32 @@ const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
     let source = '';
     switch (result.status_msg) {
       case 'Accepted': {
-        source = `# Accepted\n\nRuntime: ${result.display_runtime}\nMemory: ${result.status_memory}\n\nOutput:\n\`\`\`\n${result.code_output}\n\`\`\``;
+        source =
+          formatMarkdown(`${status2Emoji(result.status_msg)} Result: ${result.status_msg}
+💯 Passed Test Case: ${result.total_correct} / ${result.total_testcases}
+🚀 Runtime: ${result.status_runtime}, Memory: ${result.status_memory}
+🉑 Runtime Percentile: better than ${result.runtime_percentile?.toFixed(2)}%, Memory Percentile: better than ${result.memory_percentile?.toFixed(2)}%
+📆 Finished At: ${new Date(result.task_finish_time).toUTCString()}`);
         break;
       }
-      case 'Wrong Answer': {
-        source = `# Wrong Answer\n\nExpected: ${result.expected_output}\nGot: ${result.code_output}\n\nInput:\n\`\`\`\n${result.input_formatted}\n\`\`\``;
-        break;
-      }
-      case 'Time Limit Exceeded': {
-        source = `# Time Limit Exceeded\n\nRuntime: ${result.display_runtime}\nMemory: ${result.status_memory}\n\nInput:\n\`\`\`\n${result.input_formatted}\n\`\`\``;
-        break;
-      }
-      case 'Memory Limit Exceeded': {
-        source = `# Memory Limit Exceeded\n\nRuntime: ${result.display_runtime}\nMemory: ${result.status_memory}\n\nInput:\n\`\`\`\n${result.input_formatted}\n\`\`\``;
-        break;
-      }
-      case 'Runtime Error': {
-        source = `# Runtime Error\n\nRuntime: ${result.display_runtime}\nMemory: ${result.status_memory}\n\nOutput:\n\`\`\`\n${result.code_output}\n\`\`\`\n\nInput:\n\`\`\`\n${result.input_formatted}\n\`\`\``;
-        break;
-      }
+      case 'Wrong Answer':
+      case 'Time Limit Exceeded':
+      case 'Memory Limit Exceeded':
+      case 'Runtime Error':
       case 'Internal Error': {
-        source = `# Internal Error\n\nRuntime: ${result.display_runtime}\nMemory: ${result.status_memory}\n\nOutput:\n\`\`\`\n${result.code_output}\n\`\`\`\n\nInput:\n\`\`\`\n${result.input_formatted}\n\`\`\``;
+        source =
+          formatMarkdown(`${status2Emoji(result.status_msg)} Result: ${result.status_msg}
+📥 Input: \`${result.input_formatted}\`
+📤 Output: \`${result.code_output}\`
+✅ Expected: \`${result.expected_output}\`
+💯 Passed Test Case: ${result.total_correct} / ${result.total_testcases}`);
         break;
       }
     }
     cellModel.sharedModel.setSource(source);
   };
 
+  // one websocket per submission
   useEffect(() => {
     if (!submissionId) {
       return;
@@ -113,6 +135,7 @@ const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
     setResult(null);
   }, [submissionId]);
 
+  // reconnect websocket
   useEffect(() => {
     if (!ws) {
       return;
@@ -126,6 +149,7 @@ const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
     }
   }, [ws, ws?.readyState]);
 
+  // render result cell to notebook
   useEffect(() => {
     if (result?.state !== 'SUCCESS') {
       return;
@@ -135,6 +159,7 @@ const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
       populateResultCell(resultCellModel, result);
       NotebookActions.changeCellType(notebook.content, 'markdown');
       NotebookActions.run(notebook.content);
+      notebook.context.save();
     }
   }, [result?.state]);
 
