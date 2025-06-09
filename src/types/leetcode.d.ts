@@ -108,5 +108,5 @@ export type LeetCodeSubmissionResult =
       memory_percentile: number | null;
       input_formatted: string;
       input: string;
-      status_msg: string;
+      status_msg: 'Accepted' | 'Wrong Answer' | string;
     };

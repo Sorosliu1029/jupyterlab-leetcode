@@ -482,9 +482,6 @@ class LeetCodeWebSocketSubmitHandler(WebSocketHandler):
             return
 
         self.check_result = json.loads(resp.body)
-        print(
-            f"Checking submission {self.submission_id}, attempts: {cnt}, result: {self.check_result}"
-        )
         self.write_message(
             {
                 "type": "submissionResult",

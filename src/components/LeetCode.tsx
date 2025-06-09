@@ -43,6 +43,7 @@ const LeetCode: React.FC<{
   }, []);
 
   const openNoteBook = (path: string) => {
+    // TODO: notebook.NotebookActions.runCells of pre-code cell
     docManager.openOrReveal(path);
   };
 
