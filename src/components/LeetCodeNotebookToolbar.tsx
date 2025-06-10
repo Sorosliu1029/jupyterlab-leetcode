@@ -131,6 +131,12 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
     cellModel.sharedModel.setSource(source);
   };
 
+  const saveResult = (
+    result: Extract<LeetCodeSubmissionResult, { state: 'SUCCESS' }>
+  ) => {
+    notebook.content.model?.setMetadata('leetcode_submission_result', result);
+  };
+
   // one websocket per submission
   useEffect(() => {
     if (!submissionId) {
@@ -193,6 +199,7 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
       populateResultCell(resultCellModel, result);
       NotebookActions.changeCellType(notebook.content, 'markdown');
       NotebookActions.run(notebook.content);
+      saveResult(result);
       notebook.context.save();
     }
   }, [result?.state]);
