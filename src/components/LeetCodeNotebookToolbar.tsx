@@ -3,6 +3,7 @@ import { Notification } from '@jupyterlab/apputils';
 import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import { ICellModel } from '@jupyterlab/cells';
+import { PromiseDelegate, ReadonlyJSONValue } from '@lumino/coreutils';
 import { submitNotebook } from '../services/notebook';
 import { makeWebSocket } from '../services/handler';
 import { leetcodeIcon } from '../icons/leetcode';
@@ -16,7 +17,7 @@ const status2Emoji = (status: string) => {
     case 'Accepted':
       return '😃';
     case 'Wrong Answer':
-      return '😕';
+      return '🐛';
     case 'Time Limit Exceeded':
       return '⏳';
     case 'Memory Limit Exceeded':
@@ -41,6 +42,8 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [wsRetries, setWsRetries] = useState(0);
   const [result, setResult] = useState<LeetCodeSubmissionResult | null>(null);
+  const [submitPromise, setSubmitPromise] =
+    useState<PromiseDelegate<ReadonlyJSONValue> | null>(null);
 
   const submit = () => {
     notebook.context.save().then(() => {
@@ -136,6 +139,7 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
     setWs(makeWs(submissionId));
     setWsRetries(0);
     setResult(null);
+    setSubmitPromise(new PromiseDelegate<ReadonlyJSONValue>());
   }, [submissionId]);
 
   // reconnect websocket
@@ -143,20 +147,47 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
     if (!ws) {
       return;
     }
-    if (ws.readyState === WebSocket.CLOSED && wsRetries < 10) {
-      setTimeout(() => {
-        console.log('Reconnecting WebSocket...');
-        setWs(makeWs(submissionId));
-      }, 1000);
-      setWsRetries(wsRetries + 1);
+    if (ws.readyState === WebSocket.CLOSED) {
+      if (wsRetries < 10) {
+        setTimeout(() => {
+          console.log('Reconnecting WebSocket...');
+          setWs(makeWs(submissionId));
+        }, 1000);
+        setWsRetries(wsRetries + 1);
+      } else {
+        submitPromise?.reject({
+          error: 'WebSocket connection failed after 10 retries.'
+        });
+      }
     }
   }, [ws, ws?.readyState]);
+
+  // notification after submit
+  useEffect(() => {
+    if (!submitPromise) {
+      return;
+    }
+
+    Notification.promise(submitPromise.promise, {
+      pending: { message: '⏳ Pending...', options: { autoClose: false } },
+      success: {
+        message: (result: any) =>
+          `${status2Emoji(result.status_msg)} Result: ${result.status_msg}`,
+        options: { autoClose: 3000 }
+      },
+      error: {
+        message: (result: any) => `🔴 Error: ${result.error}`,
+        options: { autoClose: 3000 }
+      }
+    });
+  }, [submitPromise]);
 
   // render result cell to notebook
   useEffect(() => {
     if (result?.state !== 'SUCCESS') {
       return;
     }
+    submitPromise?.resolve({ status_msg: result.status_msg });
     const resultCellModel = getResultCell();
     if (resultCellModel) {
       populateResultCell(resultCellModel, result);
