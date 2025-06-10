@@ -1,10 +1,13 @@
+import React, { StrictMode } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import React, { StrictMode } from 'react';
-import LeetCodeMainArea from './components/LeetCodeMainArea';
-import LeetCodeNotebookHeader from './components/LeetCodeNotebookHeader';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { createTheme, MantineProvider } from '@mantine/core';
+import LeetCodeMainArea from './components/LeetCodeMainArea';
+import LeetCodeNotebookToolbar from './components/LeetCodeNotebookToolbar';
+
+const theme = createTheme({});
 
 export class LeetCodeMainWidget extends ReactWidget {
   app: JupyterFrontEnd;
@@ -21,25 +24,27 @@ export class LeetCodeMainWidget extends ReactWidget {
   render(): JSX.Element {
     return (
       <StrictMode>
-        <LeetCodeMainArea app={this.app} docManager={this.docManager} />
+        <MantineProvider theme={theme}>
+          <LeetCodeMainArea app={this.app} docManager={this.docManager} />
+        </MantineProvider>
       </StrictMode>
     );
   }
 }
 
-export class LeetCodeHeaderWidget extends ReactWidget {
+export class LeetCodeToolbarWidget extends ReactWidget {
   notebook: NotebookPanel;
 
   constructor(notebook: NotebookPanel) {
     super();
-    this.id = 'JupyterlabLeetcodeNotebookHeaderWidget';
+    this.id = 'JupyterlabLeetcodeNotebookToolbarWidget';
     this.notebook = notebook;
   }
 
   render(): JSX.Element {
     return (
       <StrictMode>
-        <LeetCodeNotebookHeader notebook={this.notebook} />
+        <LeetCodeNotebookToolbar notebook={this.notebook} />
       </StrictMode>
     );
   }

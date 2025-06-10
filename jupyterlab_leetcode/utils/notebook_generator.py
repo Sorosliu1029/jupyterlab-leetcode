@@ -196,6 +196,7 @@ class NotebookGenerator:
                 run_cells.append(copied)
 
         if run_cells:
+            # FIXME: accumulation ?
             self.template["cells"][idx : idx + 1] = run_cells
 
     def __dump(self, q):

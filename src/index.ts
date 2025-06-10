@@ -14,9 +14,10 @@ import {
 } from '@jupyterlab/docmanager';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { ILauncher } from '@jupyterlab/launcher';
-import { reactIcon } from '@jupyterlab/ui-components';
+import '@mantine/core/styles.css';
+import { leetcodeIcon } from './icons/leetcode';
 
-import { LeetCodeMainWidget, LeetCodeHeaderWidget } from './widget';
+import { LeetCodeMainWidget, LeetCodeToolbarWidget } from './widget';
 
 const PLUGIN_ID = 'jupyterlab-leetcode:plugin';
 
@@ -41,16 +42,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const command = 'leetcode-widget:open';
     app.commands.addCommand(command, {
-      caption: 'Open LeetCode Widget',
-      label: 'Open LeetCode Widget',
-      icon: args => (args['isPalette'] ? undefined : reactIcon),
+      caption: 'LeetCode',
+      label: 'LeetCode',
+      icon: args => (args['isPalette'] ? undefined : leetcodeIcon),
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
           leetcodeWidget = new MainAreaWidget<LeetCodeMainWidget>({
             content: new LeetCodeMainWidget(app, docManager)
           });
           leetcodeWidget.title.label = 'LeetCode Widget';
-          leetcodeWidget.title.icon = reactIcon;
+          leetcodeWidget.title.icon = leetcodeIcon;
         }
         if (!tracker.has(leetcodeWidget)) {
           tracker.add(leetcodeWidget);
@@ -61,26 +62,27 @@ const plugin: JupyterFrontEndPlugin<void> = {
         app.shell.activateById(leetcodeWidget.id);
       }
     });
+
+    // add to palette
     palette.addItem({ command, category: 'LeetCode' });
+    // add to launcher
     if (launcher) {
       launcher.add({ command, category: 'LeetCode', rank: 1 });
     }
+    // restore open/close status
     const tracker = new WidgetTracker<MainAreaWidget<LeetCodeMainWidget>>({
       namespace: 'leetcode-widget'
     });
     if (restorer) {
       restorer.restore(tracker, { command, name: () => 'leetcode' });
     }
-
+    // auto attach to LeetCode notebook
     docWidgetOpener.opened.connect((sender, widget) => {
       if (widget instanceof NotebookPanel) {
         widget.revealed.then(() => {
           if (widget.model?.metadata?.leetcode_question_info) {
-            const header = new LeetCodeHeaderWidget(widget);
-            header.node.style.minHeight = '20px';
-            if (widget.contentHeader.widgets.every(w => w.id !== header.id)) {
-              widget.contentHeader.addWidget(header);
-            }
+            const toolbarItem = new LeetCodeToolbarWidget(widget);
+            widget.toolbar.insertBefore('spacer', 'leetcode', toolbarItem);
           }
         });
       }

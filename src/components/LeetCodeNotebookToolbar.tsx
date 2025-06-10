@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
+import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import { ICellModel } from '@jupyterlab/cells';
 import { submitNotebook } from '../services/notebook';
 import { makeWebSocket } from '../services/handler';
+import { leetcodeIcon } from '../icons/leetcode';
 import {
   LeetCodeSubmissionResult,
   LeetCodeWebSocketMessage
@@ -31,7 +33,7 @@ const formatMarkdown = (text: string) => {
   return text.replace(/\n/g, '  \n');
 };
 
-const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
+const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
   notebook
 }) => {
   const [submissionId, setSubmissionId] = useState(0);
@@ -164,11 +166,12 @@ const LeetCodeNotebookHeader: React.FC<{ notebook: NotebookPanel }> = ({
   }, [result?.state]);
 
   return (
-    <div>
-      <button onClick={submit}>Submit</button>
-      <span>Result: {result ? JSON.stringify(result) : 'No result yet'}</span>
-    </div>
+    <ToolbarButtonComponent
+      onClick={submit}
+      tooltip="Submit to LeetCode"
+      icon={leetcodeIcon}
+    />
   );
 };
 
-export default LeetCodeNotebookHeader;
+export default LeetCodeNotebookToolbar;
