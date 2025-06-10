@@ -4,6 +4,7 @@ import BrowserCookie from './BrowserCookie';
 import { Button, Container, Group, Text, Tooltip, Anchor } from '@mantine/core';
 import { IconBrandGithub, IconBrandLinkedin } from '@tabler/icons-react';
 import classes from '../styles/LandingPage.module.css';
+import Footer from './Footer';
 
 const LeetCdoeGradient = { from: '#FEA512', to: '#FFDB01' };
 
@@ -57,7 +58,7 @@ const LandingPage: React.FC<{
           plugin
         </h1>
 
-        <Text className={classes.description} color="dimmed">
+        <Text className={classes.description} c="dimmed">
           For this plugin to work, you may choose one of these {options.length}{' '}
           methods to allow this plugin to{' '}
           <Anchor
@@ -73,6 +74,8 @@ const LandingPage: React.FC<{
         </Text>
 
         <Group className={classes.controls}>{...options}</Group>
+
+        <Footer />
       </Container>
     </div>
   );

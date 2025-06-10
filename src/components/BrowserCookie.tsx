@@ -146,7 +146,7 @@ const BrowserCookie: React.FC<{
       </Menu.Target>
       <Menu.Dropdown>
         <Menu.Label>With LeetCode logged in</Menu.Label>
-        {BROWSERS.map(({ name, icon }, i) => (
+        {BROWSERS.map(({ name, icon }) => (
           <Menu.Item
             key={name}
             leftSection={icon(theme.colors.blue[6])}

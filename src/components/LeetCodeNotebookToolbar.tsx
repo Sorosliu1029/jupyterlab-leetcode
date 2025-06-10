@@ -6,7 +6,7 @@ import { ICellModel } from '@jupyterlab/cells';
 import { PromiseDelegate, ReadonlyJSONValue } from '@lumino/coreutils';
 import { submitNotebook } from '../services/notebook';
 import { makeWebSocket } from '../services/handler';
-import { leetcodeIcon } from '../icons/leetcode';
+import { LeetCodeIcon } from '../icons/leetcode';
 import {
   LeetCodeSubmissionResult,
   LeetCodeWebSocketMessage
@@ -208,7 +208,7 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
     <ToolbarButtonComponent
       onClick={submit}
       tooltip="Submit to LeetCode"
-      icon={leetcodeIcon}
+      icon={LeetCodeIcon}
     />
   );
 };

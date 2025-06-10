@@ -15,7 +15,7 @@ import {
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { ILauncher } from '@jupyterlab/launcher';
 import '@mantine/core/styles.css';
-import { leetcodeIcon } from './icons/leetcode';
+import { LeetCodeIcon } from './icons/leetcode';
 
 import { LeetCodeMainWidget, LeetCodeToolbarWidget } from './widget';
 
@@ -44,14 +44,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(command, {
       caption: 'LeetCode',
       label: 'LeetCode',
-      icon: args => (args['isPalette'] ? undefined : leetcodeIcon),
+      icon: args => (args['isPalette'] ? undefined : LeetCodeIcon),
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
           leetcodeWidget = new MainAreaWidget<LeetCodeMainWidget>({
             content: new LeetCodeMainWidget(app, docManager)
           });
           leetcodeWidget.title.label = 'LeetCode Widget';
-          leetcodeWidget.title.icon = leetcodeIcon;
+          leetcodeWidget.title.icon = LeetCodeIcon;
         }
         if (!tracker.has(leetcodeWidget)) {
           tracker.add(leetcodeWidget);
@@ -77,7 +77,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       restorer.restore(tracker, { command, name: () => 'leetcode' });
     }
     // auto attach to LeetCode notebook
-    docWidgetOpener.opened.connect((sender, widget) => {
+    docWidgetOpener.opened.connect((__sender, widget) => {
       if (widget instanceof NotebookPanel) {
         widget.revealed.then(() => {
           if (widget.model?.metadata?.leetcode_question_info) {
