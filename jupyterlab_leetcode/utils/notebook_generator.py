@@ -20,7 +20,7 @@ class NotebookGenerator:
             "notebook.template.json",
         )
         with open(template_path, "rt") as f:
-            self.template = json.load(f)
+            self.__template = json.load(f)
 
         self.typing_regex = re.compile(
             "|".join(
@@ -180,24 +180,18 @@ class NotebookGenerator:
 
         idx, run_cell = run_cell_with_idx
         cases = q["exampleTestcaseList"] or [q["sampleTestCase"]]
-        run_cells = []
 
         def fill_case(case):
-            return f"Solution().{func_name}({case.replace('\n', ', ')})"
+            return f"s.{func_name}({case.replace('\n', ', ')})"
 
         for i, case in enumerate(cases):
             if i == 0:
-                run_cell["source"] = [fill_case(case)]
-                run_cells.append(run_cell)
+                run_cell["source"] = [f"s = Solution()\n{fill_case(case)}"]
             else:
                 copied = copy.deepcopy(run_cell)
                 copied["metadata"]["id"] = f"run_{i}"
                 copied["source"] = [fill_case(case)]
-                run_cells.append(copied)
-
-        if run_cells:
-            # FIXME: accumulation ?
-            self.template["cells"][idx : idx + 1] = run_cells
+                self.template["cells"].insert(idx + i, copied)
 
     def __dump(self, q):
         qid = q["questionFrontendId"]
@@ -212,6 +206,7 @@ class NotebookGenerator:
         return file_path
 
     def generate(self, q):
+        self.template = copy.deepcopy(self.__template)
         self.__populate_metadata(q)
         self.__populate_title(q)
         self.__populate_content(q)

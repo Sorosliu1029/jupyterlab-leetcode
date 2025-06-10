@@ -82,7 +82,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         widget.revealed.then(() => {
           if (widget.model?.metadata?.leetcode_question_info) {
             const toolbarItem = new LeetCodeToolbarWidget(widget);
-            widget.toolbar.insertBefore('spacer', 'leetcode', toolbarItem);
+            widget.toolbar.insertAfter('cellType', 'leetcode', toolbarItem);
           }
         });
       }

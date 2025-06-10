@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { JupyterFrontEnd, LabShell } from '@jupyterlab/application';
-import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { getProfile } from '../services/leetcode';
 import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
@@ -44,22 +43,7 @@ const LeetCode: React.FC<{
   }, []);
 
   const openNoteBook = (path: string) => {
-    const docWidget = docManager.openOrReveal(path);
-    if (docWidget && docWidget instanceof NotebookPanel) {
-      docWidget.revealed.then(() => {
-        let idx = 0;
-        for (const cell of docWidget.content.model?.cells ?? []) {
-          if (cell.metadata['id'] === 'pre_code') {
-            docWidget.content.activeCellIndex = idx;
-            docWidget.context.ready.then(() => {
-              // FIXME: not running..., dont know why
-              NotebookActions.run(docWidget.content);
-            });
-          }
-          idx++;
-        }
-      });
-    }
+    docManager.openOrReveal(path);
   };
 
   return profile ? (
