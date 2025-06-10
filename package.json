@@ -30,12 +30,13 @@
         "url": "https://github.com/Sorosliu1029/jupyterlab-leetcode.git"
     },
     "scripts": {
-        "build": "jlpm build:lib && jlpm build:labextension:dev",
-        "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
+        "build": "jlpm build:lib && jlpm copy && jlpm build:labextension:dev",
+        "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm copy && jlpm build:labextension",
         "build:labextension": "jupyter labextension build .",
         "build:labextension:dev": "jupyter labextension build --development True .",
         "build:lib": "tsc --sourceMap",
         "build:lib:prod": "tsc",
+        "copy": "copyfiles -u 1 src/**/*.css lib/",
         "clean": "jlpm clean:lib",
         "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
         "clean:lintcache": "rimraf .eslintcache .stylelintcache",
@@ -65,8 +66,7 @@
         "@jupyterlab/settingregistry": "^4.0.0",
         "@mantine/core": "^7.17.8",
         "@mantine/hooks": "^7.17.8",
-        "@tabler/icons-react": "^3.34.0",
-        "bowser": "^2.11.0"
+        "@tabler/icons-react": "^3.34.0"
     },
     "devDependencies": {
         "@jupyterlab/builder": "^4.0.0",
@@ -77,6 +77,7 @@
         "@types/react-addons-linked-state-mixin": "^0.14.22",
         "@typescript-eslint/eslint-plugin": "^6.1.0",
         "@typescript-eslint/parser": "^6.1.0",
+        "copyfiles": "^2.4.1",
         "css-loader": "^6.7.1",
         "eslint": "^8.36.0",
         "eslint-config-prettier": "^8.8.0",

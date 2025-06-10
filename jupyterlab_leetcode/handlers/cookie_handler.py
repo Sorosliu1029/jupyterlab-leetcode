@@ -43,7 +43,23 @@ class GetCookieHandler(BaseHandler):
             self.finish(json.dumps({"message": f"Unsupported browser: {browser}"}))
             return
 
-        cj = BROWSER_COOKIE_METHOD_MAP[browser](domain_name="leetcode.com")
+        try:
+            cj = BROWSER_COOKIE_METHOD_MAP[browser](domain_name="leetcode.com")
+        except browser_cookie3.BrowserCookieError as e:
+            self.set_status(418)
+            self.finish(
+                json.dumps(
+                    {
+                        "message": "Failed to retrieve cookies. Maybe not installed the browser?"
+                    }
+                )
+            )
+            return
+        except Exception as e:
+            self.set_status(418)
+            self.finish(json.dumps({"message": str(e.args)}))
+            return
+
         cookie_session = first(cj, lambda c: c.name == "LEETCODE_SESSION")
         cookie_csrf = first(cj, lambda c: c.name == "csrftoken")
         exist = bool(cookie_session and cookie_csrf)
