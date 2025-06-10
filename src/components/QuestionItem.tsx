@@ -1,4 +1,5 @@
 import React from 'react';
+import { Notification } from '@jupyterlab/apputils';
 import { LeetCodeQuestion } from '../types/leetcode';
 import { generateNotebook } from '../services/notebook';
 
@@ -20,7 +21,7 @@ const QuestionItem: React.FC<{
             .then(({ filePath }) => {
               onGenerateSuccess(filePath);
             })
-            .catch(console.error);
+            .catch(e => Notification.error(e.message, { autoClose: 3000 }));
         }}
       >
         C

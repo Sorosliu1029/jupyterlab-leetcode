@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Notification } from '@jupyterlab/apputils';
 import { listQuestions } from '../services/leetcode';
 import { LeetCodeQuestion } from '../types/leetcode';
 import QuestionItem from './QuestionItem';
@@ -30,7 +31,7 @@ const QuestionList: React.FC<{ openNotebook: (p: string) => void }> = ({
         setFinishedLength(fetchedFinishedLength);
         setTotalLength(fetchedTotalLength);
       })
-      .catch(console.error);
+      .catch(e => Notification.error(e.message, { autoClose: 3000 }));
   }, [keyword, skip]);
 
   return (

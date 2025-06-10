@@ -1,28 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import { IDocumentWidget } from '@jupyterlab/docregistry';
-import { JupyterFrontEnd, LabShell } from '@jupyterlab/application';
+import { Notification } from '@jupyterlab/apputils';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getProfile } from '../services/leetcode';
 import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
 import Statistics from './Statistics';
 import QuestionList from './QuestionList';
-
-export function getCurrentOpenFilePath(
-  shell: LabShell,
-  docManager: IDocumentManager,
-  widget?: IDocumentWidget
-): string | null {
-  const currentWidget = widget ?? shell.currentWidget;
-  if (!currentWidget || !docManager) {
-    return null;
-  }
-  const context = docManager.contextForWidget(currentWidget);
-  if (!context) {
-    return null;
-  }
-  return context.path;
-}
 
 const LeetCode: React.FC<{
   app: JupyterFrontEnd;
@@ -34,12 +18,14 @@ const LeetCode: React.FC<{
     getProfile()
       .then(profile => {
         if (!profile.isSignedIn) {
-          alert('Please sign in to LeetCode.');
+          Notification.error('Please sign in to LeetCode.', {
+            autoClose: 3000
+          });
           return;
         }
         setProfile(profile);
       })
-      .catch(console.error);
+      .catch(e => Notification.error(e.message, { autoClose: 3000 }));
   }, []);
 
   const openNoteBook = (path: string) => {

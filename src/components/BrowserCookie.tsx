@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Notification } from '@jupyterlab/apputils';
 import { getCookie } from '../services/cookie';
 import Bowser from 'bowser';
 
@@ -47,14 +48,14 @@ const BrowserCookie: React.FC<{
   }, [checked, setCookieLoggedIn]);
 
   const checkCookie = () => {
-    // TODO: change alert
     if (!browser) {
-      alert('Please select a browser.');
+      Notification.error('Please select a browser.', { autoClose: 3000 });
       return;
     }
     if (browser === 'safari') {
-      alert(
-        'Safari does not support getting cookies from the browser. Please use another browser.'
+      Notification.error(
+        'Safari does not support getting cookies from the browser. Please use another browser.',
+        { autoClose: 3000 }
       );
       return;
     }
@@ -63,7 +64,7 @@ const BrowserCookie: React.FC<{
       .then(resp => {
         setChecked(resp['checked']);
       })
-      .catch(console.error);
+      .catch(e => Notification.error(e.message, { autoClose: 3000 }));
   };
 
   return (

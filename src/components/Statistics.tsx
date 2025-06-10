@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Notification } from '@jupyterlab/apputils';
 import { getStatistics } from '../services/leetcode';
 import { LeetCodeStatistics } from '../types/leetcode';
 
@@ -10,7 +11,7 @@ const Statistics: React.FC<{ username: string }> = ({ username }) => {
       .then(d => {
         setStatistics(d);
       })
-      .catch(console.error);
+      .catch(e => Notification.error(e.message, { autoClose: 3000 }));
   }, []);
 
   return statistics ? (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Notification } from '@jupyterlab/apputils';
 import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { ToolbarButtonComponent } from '@jupyterlab/ui-components';
 import { ICellModel } from '@jupyterlab/cells';
@@ -48,14 +49,14 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
         .then(({ submission_id }) => {
           setSubmissionId(submission_id);
         })
-        .catch(console.error);
+        .catch(e => Notification.error(e.message, { autoClose: 3000 }));
     });
   };
 
   const makeWs = (submissionId: number) => {
     const ws = makeWebSocket(`submit?submission_id=${submissionId}`);
     ws.onmessage = event => {
-      console.log('WebSocket message received:', event.data);
+      console.debug('WebSocket message received:', event.data);
       const data = JSON.parse(event.data) as LeetCodeWebSocketMessage;
       if (data.submissionId !== submissionId) {
         return;
@@ -66,7 +67,7 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
           break;
         }
         case 'error': {
-          console.error('Error from WebSocket:', data.error);
+          Notification.error(data.error, { autoClose: 3000 });
           break;
         }
       }

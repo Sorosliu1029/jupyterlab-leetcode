@@ -4,6 +4,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import LandingPage from './LandingPage';
 import LeetCode from './LeetCode';
 import { getCookie } from '../services/cookie';
+import { Notification } from '@jupyterlab/apputils';
 
 const LeetCodeMainArea: React.FC<{
   app: JupyterFrontEnd;
@@ -23,7 +24,7 @@ const LeetCodeMainArea: React.FC<{
             setCookieLoggedIn(leetcode_browser);
           }
         })
-        .catch(console.error);
+        .catch(e => Notification.error(e.message, { autoClose: 3000 }));
     }
   });
 
