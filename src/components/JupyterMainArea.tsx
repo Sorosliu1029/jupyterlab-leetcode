@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import LandingPage from './LandingPage';
-import LeetCode from './LeetCode';
+import LeetCodeMain from './LeetCodeMain';
 import { getCookie } from '../services/cookie';
 import { Notification } from '@jupyterlab/apputils';
 
-const LeetCodeMainArea: React.FC<{
-  app: JupyterFrontEnd;
-  docManager: IDocumentManager;
-}> = ({ app, docManager }) => {
+const JupyterMainArea: React.FC<{ docManager: IDocumentManager }> = ({
+  docManager
+}) => {
   const [cookieLoggedIn, setCookieLoggedIn] = useState('');
 
   useEffect(() => {
@@ -28,11 +26,12 @@ const LeetCodeMainArea: React.FC<{
     }
   });
 
+  // FIXME: flash when refresh
   return cookieLoggedIn ? (
-    <LeetCode app={app} docManager={docManager} />
+    <LeetCodeMain docManager={docManager} />
   ) : (
     <LandingPage setCookieLoggedIn={b => setCookieLoggedIn(b)} />
   );
 };
 
-export default LeetCodeMainArea;
+export default JupyterMainArea;

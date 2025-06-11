@@ -158,17 +158,6 @@ class LeetCodeStatisticsHandler(LeetCodeHandler):
                                         }""",
                     "variables": {"userSlug": username},
                 },
-                "userPublicProfile": {
-                    "query": """query userPublicProfile($username: String!) {
-                                          matchedUser(username: $username) {
-                                            username
-                                            profile {
-                                              ranking
-                                            }
-                                          }
-                                        }""",
-                    "variables": {"username": username},
-                },
             },
         )
 

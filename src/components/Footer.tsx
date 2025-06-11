@@ -3,7 +3,7 @@ import { Anchor, Container, Group } from '@mantine/core';
 import classes from '../styles/Footer.module.css';
 import { IconBrandLeetcode } from '@tabler/icons-react';
 
-const LINKS = [
+const Links = [
   {
     link: 'https://github.com/Sorosliu1029/jupyterlab-leetcode',
     label: 'GitHub'
@@ -18,7 +18,7 @@ const Footer = () => {
       <Container className={classes.inner}>
         <IconBrandLeetcode size={28} />
         <Group className={classes.links}>
-          {LINKS.map(link => (
+          {Links.map(link => (
             <Anchor<'a'>
               c="dimmed"
               key={link.label}

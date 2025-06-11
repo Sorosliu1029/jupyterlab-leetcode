@@ -1,0 +1,20 @@
+.title_column {
+  width: 60%;
+}
+
+.ac_column {
+  width: 10%;
+}
+
+.difficulty_column {
+  width: 10%;
+}
+
+.generate_column {
+  width: 5%;
+}
+
+.generate_button {
+  width: 70%;
+  height: 70%;
+}

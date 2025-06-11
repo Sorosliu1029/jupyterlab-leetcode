@@ -14,7 +14,7 @@ import {
 import { Button, Menu, useMantineTheme } from '@mantine/core';
 import { getCookie } from '../services/cookie';
 
-const BROWSERS = [
+const Browsers = [
   {
     name: 'Chrome',
     icon: (color: string) => (
@@ -86,7 +86,7 @@ const BROWSERS = [
 const normalizeBrowserName = (name: string) =>
   name.toLowerCase().replace(/\s+/g, '_');
 
-const BrowserCookie: React.FC<{
+const BrowserMenu: React.FC<{
   className?: string;
   setCookieLoggedIn: (b: string) => void;
 }> = ({ className, setCookieLoggedIn }) => {
@@ -146,7 +146,7 @@ const BrowserCookie: React.FC<{
       </Menu.Target>
       <Menu.Dropdown>
         <Menu.Label>With LeetCode logged in</Menu.Label>
-        {BROWSERS.map(({ name, icon }) => (
+        {Browsers.map(({ name, icon }) => (
           <Menu.Item
             key={name}
             leftSection={icon(theme.colors.blue[6])}
@@ -160,4 +160,4 @@ const BrowserCookie: React.FC<{
   );
 };
 
-export default BrowserCookie;
+export default BrowserMenu;

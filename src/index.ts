@@ -17,7 +17,7 @@ import { ILauncher } from '@jupyterlab/launcher';
 import '@mantine/core/styles.css';
 import { LeetCodeIcon } from './icons/leetcode';
 
-import { LeetCodeMainWidget, LeetCodeToolbarWidget } from './widget';
+import { JupyterMainWidget, LeetCodeToolbarWidget } from './widget';
 
 const PLUGIN_ID = 'jupyterlab-leetcode:plugin';
 
@@ -38,17 +38,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
     restorer: ILayoutRestorer | null,
     launcher: ILauncher | null
   ) => {
-    let leetcodeWidget: MainAreaWidget<LeetCodeMainWidget>;
+    let leetcodeWidget: MainAreaWidget<JupyterMainWidget>;
 
     const command = 'leetcode-widget:open';
     app.commands.addCommand(command, {
-      caption: 'LeetCode',
-      label: 'LeetCode',
+      caption: 'Open LeetCode Widget',
+      label: 'Open LeetCode Widget',
       icon: args => (args['isPalette'] ? undefined : LeetCodeIcon),
       execute: () => {
         if (!leetcodeWidget || leetcodeWidget.isDisposed) {
-          leetcodeWidget = new MainAreaWidget<LeetCodeMainWidget>({
-            content: new LeetCodeMainWidget(app, docManager)
+          leetcodeWidget = new MainAreaWidget<JupyterMainWidget>({
+            content: new JupyterMainWidget(docManager)
           });
           leetcodeWidget.title.label = 'LeetCode Widget';
           leetcodeWidget.title.icon = LeetCodeIcon;
@@ -70,7 +70,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       launcher.add({ command, category: 'LeetCode', rank: 1 });
     }
     // restore open/close status
-    const tracker = new WidgetTracker<MainAreaWidget<LeetCodeMainWidget>>({
+    const tracker = new WidgetTracker<MainAreaWidget<JupyterMainWidget>>({
       namespace: 'leetcode-widget'
     });
     if (restorer) {

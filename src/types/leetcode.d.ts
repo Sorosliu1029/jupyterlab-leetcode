@@ -5,15 +5,6 @@ export type LeetCodeProfile = {
   username: string;
 };
 
-export type LeetCodePublicProfile = {
-  matchedUser: {
-    profile: {
-      ranking: number;
-    };
-    username: string;
-  };
-};
-
 export type LeetCodeQuestionStatistic = {
   count: number;
   difficulty: string;
@@ -43,7 +34,6 @@ export type LeetCodeSessionProgress = {
 };
 
 export type LeetCodeStatistics = {
-  userPublicProfile: LeetCodePublicProfile;
   userSessionProgress: LeetCodeSessionProgress;
   userProfileUserQuestionProgressV2: {
     userProfileUserQuestionProgressV2: LeetCodeQuestionProgress;

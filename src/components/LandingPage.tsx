@@ -1,18 +1,20 @@
 import React from 'react';
-import BrowserCookie from './BrowserCookie';
 
 import { Button, Container, Group, Text, Tooltip, Anchor } from '@mantine/core';
 import { IconBrandGithub, IconBrandLinkedin } from '@tabler/icons-react';
 import classes from '../styles/LandingPage.module.css';
 import Footer from './Footer';
+import BrowserMenu from './BrowserMenu';
 
-const LeetCdoeGradient = { from: '#FEA512', to: '#FFDB01' };
+export const LeetCodeMainColor = '#FEA512';
+export const LeetCodeSecondColor = '#FFDB01';
+const LeetCdoeGradient = { from: LeetCodeMainColor, to: LeetCodeSecondColor };
 
 const LandingPage: React.FC<{
   setCookieLoggedIn: (b: string) => void;
 }> = ({ setCookieLoggedIn }) => {
   const options: JSX.Element[] = [
-    <BrowserCookie
+    <BrowserMenu
       setCookieLoggedIn={setCookieLoggedIn}
       className={classes.control}
     />,
