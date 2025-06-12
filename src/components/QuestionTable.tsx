@@ -3,7 +3,17 @@ import { Notification } from '@jupyterlab/apputils';
 import { listQuestions } from '../services/leetcode';
 import { LeetCodeQuestion, LeetCodeQuestionQuery } from '../types/leetcode';
 import QuestionItem from './QuestionItem';
-import { Table, Text, Stack, ScrollArea, Skeleton, Group } from '@mantine/core';
+import {
+  Table,
+  Text,
+  Stack,
+  ScrollArea,
+  Skeleton,
+  Group,
+  Transition,
+  Center,
+  Loader
+} from '@mantine/core';
 import QuestionQueryKeyword from './QuestionQueryKeyword';
 import QuestionDifficultyFilter from './QuestionDifficultyFilter';
 import QuestionStatusFilter from './QuestionStatusFilter';
@@ -20,6 +30,7 @@ const QuestionTable: React.FC<{
   const [skip, setSkip] = useState(0);
   const [questions, setQuestions] = useState<LeetCodeQuestion[]>([]);
   const [hasMore, setHasMore] = useState(true);
+  const [fetchingMore, setFetchingMore] = useState(false);
 
   const [query, setQuery] = useState<LeetCodeQuestionQuery>({
     keyword: '',
@@ -41,6 +52,7 @@ const QuestionTable: React.FC<{
       .then(({ problemsetQuestionListV2 }) => {
         const qs = fetching ? [] : questions; // fix datarace to ensure distinct key
         setFetching(false);
+        setFetchingMore(false);
         const { questions: fetchedQuestions, hasMore: fetchedHasMore } =
           problemsetQuestionListV2;
         setQuestions(qs.concat(fetchedQuestions));
@@ -103,10 +115,14 @@ const QuestionTable: React.FC<{
           updateCompanies={cs => updateQuery({ ...query, companies: cs })}
         />
       </Group>
-      {/* TODO: show fetching more loading icon */}
       <ScrollArea
         type="scroll"
-        onBottomReached={() => (hasMore ? setSkip(s => s + limit) : null)}
+        onBottomReached={() => {
+          if (!fetchingMore && hasMore) {
+            setFetchingMore(true);
+            setSkip(s => s + limit);
+          }
+        }}
       >
         <Table
           striped
@@ -116,6 +132,18 @@ const QuestionTable: React.FC<{
         >
           <Table.Tbody>{getTableRows()}</Table.Tbody>
         </Table>
+        <Transition
+          mounted={fetchingMore}
+          transition="fade"
+          duration={400}
+          timingFunction="ease"
+        >
+          {styles => (
+            <Center style={styles}>
+              <Loader size="xs" />
+            </Center>
+          )}
+        </Transition>
       </ScrollArea>
     </Stack>
   );
