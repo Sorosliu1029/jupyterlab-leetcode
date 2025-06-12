@@ -6,7 +6,7 @@ import { getProfile } from '../services/leetcode';
 import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
 import Statistics from './Statistics';
-import QuestionList from './QuestionList';
+import QuestionTable from './QuestionTable';
 
 const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
   docManager
@@ -50,7 +50,7 @@ const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
           {profile && <Profile profile={profile} />}
           {profile && <Statistics username={profile.username} />}
         </Group>
-        <QuestionList openNotebook={openNoteBook} height={calcHeight()} />
+        <QuestionTable openNotebook={openNoteBook} height={calcHeight()} />
       </Stack>
     </Container>
   );

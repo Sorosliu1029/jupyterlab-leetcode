@@ -100,3 +100,7 @@ export type LeetCodeSubmissionResult =
       input: string;
       status_msg: 'Accepted' | 'Wrong Answer' | string;
     };
+
+export type LeetCodeQuestionQuery = {
+  keyword: string;
+};

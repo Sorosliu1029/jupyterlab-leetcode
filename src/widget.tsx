@@ -2,27 +2,31 @@ import React, { StrictMode } from 'react';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { createTheme, MantineProvider } from '@mantine/core';
+import {
+  createTheme,
+  MantineProvider,
+  MantineThemeOverride
+} from '@mantine/core';
 import JupyterMainArea from './components/JupyterMainArea';
 import LeetCodeNotebookToolbar from './components/LeetCodeNotebookToolbar';
 
-// TODO: fix mantine override body line-height
-const theme = createTheme({});
-
 export class JupyterMainWidget extends ReactWidget {
   docManager: IDocumentManager;
+  theme: MantineThemeOverride;
 
   constructor(docManager: IDocumentManager) {
     super();
     this.id = 'JupyterlabLeetcodeWidget';
     this.addClass('jupyterlab-leetcode-widget');
     this.docManager = docManager;
+    // TODO: fix mantine override body line-height
+    this.theme = createTheme({});
   }
 
   render(): JSX.Element {
     return (
       <StrictMode>
-        <MantineProvider theme={theme}>
+        <MantineProvider theme={this.theme}>
           <JupyterMainArea docManager={this.docManager} />
         </MantineProvider>
       </StrictMode>

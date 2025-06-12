@@ -1,6 +1,7 @@
 import {
   LeetCodeProfile,
   LeetCodeQuestion,
+  LeetCodeQuestionQuery,
   LeetCodeStatistics
 } from '../types/leetcode';
 import { requestAPI } from './handler';
@@ -18,7 +19,7 @@ export async function getStatistics(username: string) {
 }
 
 export async function listQuestions(
-  keyword: string,
+  query: LeetCodeQuestionQuery,
   skip: number,
   limit: number
 ) {
@@ -33,6 +34,6 @@ export async function listQuestions(
     };
   }>('/leetcode/questions', {
     method: 'POST',
-    body: JSON.stringify({ skip, limit, keyword })
+    body: JSON.stringify({ query, skip, limit })
   }).then(d => d.data);
 }

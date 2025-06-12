@@ -11,17 +11,13 @@ export const LeetCodeSecondColor = '#FFDB01';
 const LeetCdoeGradient = { from: LeetCodeMainColor, to: LeetCodeSecondColor };
 
 const LandingPage: React.FC<{
-  setCookieLoggedIn: (b: string) => void;
-}> = ({ setCookieLoggedIn }) => {
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ setIsLoggedIn }) => {
   const options: JSX.Element[] = [
-    <BrowserMenu
-      setCookieLoggedIn={setCookieLoggedIn}
-      className={classes.control}
-    />,
+    <BrowserMenu onCheckSuccess={() => setIsLoggedIn(true)} />,
     <Tooltip label="Not implemented yet, contributions are welcome!">
       <Button
         size="md"
-        className={classes.control}
         variant="filled"
         data-disabled
         onClick={e => e.preventDefault()}
@@ -33,7 +29,6 @@ const LandingPage: React.FC<{
     <Tooltip label="Not implemented yet, contributions are welcome!">
       <Button
         size="md"
-        className={classes.control}
         variant="filled"
         data-disabled
         onClick={e => e.preventDefault()}

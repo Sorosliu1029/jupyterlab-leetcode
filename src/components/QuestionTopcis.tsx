@@ -35,6 +35,7 @@ const QuestionTopics: React.FC<{ topics: LeetCodeTopicTag[] }> = ({
           </Text>
         </HoverCard.Target>
         <HoverCard.Dropdown>
+          {/* TODO: group and color topics by skills */}
           <List
             spacing="xs"
             size="sm"

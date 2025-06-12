@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Notification } from '@jupyterlab/apputils';
 import {
   IconChevronDown,
@@ -14,90 +14,85 @@ import {
 import { Button, Menu, useMantineTheme } from '@mantine/core';
 import { getCookie } from '../services/cookie';
 
+const BrowserIconProps = { size: 16, stroke: 1.5 };
+
 const Browsers = [
   {
     name: 'Chrome',
     icon: (color: string) => (
-      <IconBrandChrome size={16} color={color} stroke={1.5} />
+      <IconBrandChrome color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Firefox',
     icon: (color: string) => (
-      <IconBrandFirefox size={16} color={color} stroke={1.5} />
+      <IconBrandFirefox color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Safari',
     icon: (color: string) => (
-      <IconBrandSafari size={16} color={color} stroke={1.5} />
+      <IconBrandSafari color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Edge',
     icon: (color: string) => (
-      <IconBrandEdge size={16} color={color} stroke={1.5} />
+      <IconBrandEdge color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Opera',
     icon: (color: string) => (
-      <IconBrandOpera size={16} color={color} stroke={1.5} />
+      <IconBrandOpera color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Brave',
     icon: (color: string) => (
-      <IconWorldWww size={16} color={color} stroke={1.5} />
+      <IconWorldWww color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Vivaldi',
     icon: (color: string) => (
-      <IconBrandVivaldi size={16} color={color} stroke={1.5} />
+      <IconBrandVivaldi color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Chromium',
     icon: (color: string) => (
-      <IconBrandChrome size={16} color={color} stroke={1.5} />
+      <IconBrandChrome color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Arc',
     icon: (color: string) => (
-      <IconBrandArc size={16} color={color} stroke={1.5} />
+      <IconBrandArc color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'LibreWolf',
     icon: (color: string) => (
-      <IconWorldWww size={16} color={color} stroke={1.5} />
+      <IconWorldWww color={color} {...BrowserIconProps} />
     )
   },
   {
     name: 'Opera GX',
     icon: (color: string) => (
-      <IconBrandOpera size={16} color={color} stroke={1.5} />
+      <IconBrandOpera color={color} {...BrowserIconProps} />
     )
   }
 ];
 
-const normalizeBrowserName = (name: string) =>
-  name.toLowerCase().replace(/\s+/g, '_');
-
 const BrowserMenu: React.FC<{
-  className?: string;
-  setCookieLoggedIn: (b: string) => void;
-}> = ({ className, setCookieLoggedIn }) => {
-  const [browser, setBrowser] = useState('');
-  const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
+  onCheckSuccess: () => void;
+}> = ({ onCheckSuccess }) => {
+  const checkBrowser = (browser: string) => {
     if (!browser) {
       return;
     }
-    if (browser === 'safari') {
+    if (browser === 'Safari') {
       Notification.error(
         'Safari does not support getting cookies from the browser. Please use another browser.',
         { autoClose: 3000 }
@@ -105,24 +100,19 @@ const BrowserMenu: React.FC<{
       return;
     }
 
-    getCookie(browser)
+    getCookie(browser.toLowerCase().replace(/\s+/g, '_'))
       .then(resp => {
         if (!resp['checked']) {
           Notification.error(
-            `Failed to check cookie for ${browser}. Please ensure you are logged in to LeetCode in this browser.`,
+            `Failed to check cookie for ${browser}. Please ensure you are logged in to LeetCode in ${browser}.`,
             { autoClose: 3000 }
           );
+          return;
         }
-        setChecked(resp['checked']);
+        onCheckSuccess();
       })
       .catch(e => Notification.error(e.message, { autoClose: 3000 }));
-  }, [browser]);
-
-  useEffect(() => {
-    if (checked) {
-      setCookieLoggedIn(browser);
-    }
-  }, [checked]);
+  };
 
   const theme = useMantineTheme();
   return (
@@ -139,7 +129,6 @@ const BrowserMenu: React.FC<{
           pr={12}
           radius="md"
           size="md"
-          className={className}
         >
           Load from browser
         </Button>
@@ -150,7 +139,7 @@ const BrowserMenu: React.FC<{
           <Menu.Item
             key={name}
             leftSection={icon(theme.colors.blue[6])}
-            onClick={() => setBrowser(normalizeBrowserName(name))}
+            onClick={() => checkBrowser(name)}
           >
             {name}
           </Menu.Item>

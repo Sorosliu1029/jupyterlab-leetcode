@@ -1,6 +1,7 @@
 import { URLExt } from '@jupyterlab/coreutils';
 
 import { ServerConnection } from '@jupyterlab/services';
+import { getLeetCodeBrowserCookie } from '../utils';
 
 /**
  * Call the API extension
@@ -20,6 +21,7 @@ export async function requestAPI<T>(
     'jupyterlab-leetcode', // API Namespace
     endPoint
   );
+  init.headers = new Headers({ Cookie: getLeetCodeBrowserCookie() || '' });
 
   let response: Response;
   try {

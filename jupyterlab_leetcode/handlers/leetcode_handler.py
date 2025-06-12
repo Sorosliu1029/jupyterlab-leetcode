@@ -11,7 +11,7 @@ from tornado.httputil import HTTPServerRequest
 from tornado.websocket import WebSocketHandler
 
 from ..utils.notebook_generator import NotebookGenerator
-from ..utils.utils import first, request
+from ..utils.utils import first, get_leetcode_cookie, request
 from .base_handler import BaseHandler
 
 LEETCODE_URL = "https://leetcode.com"
@@ -21,6 +21,21 @@ MAX_CHECK_ATTEMPTS = 10
 
 class LeetCodeHandler(BaseHandler):
     """Base handler for LeetCode-related requests."""
+
+    async def prepare(self) -> None:
+        await super().prepare()
+        if not self.settings.get("leetcode_headers"):
+            browser = self.get_cookie("leetcode_browser")
+            if not browser:
+                self.set_status(400)
+                self.finish(
+                    json.dumps({"message": "LeetCode browser cookie is required"})
+                )
+                return
+
+            get_leetcode_cookie(
+                browser, self.settings, self.request.headers.get("User-Agent", "")
+            )
 
     @overload
     async def graphql(self, name: str, query: Mapping[str, Any]) -> None: ...
@@ -187,7 +202,7 @@ class LeetCodeQuestionHandler(LeetCodeHandler):
         body = cast("dict[str, str|int]", body)
         skip = cast(int, body.get("skip", 0))
         limit = cast(int, body.get("limit", 0))
-        keyword = cast(str, body.get("keyword", ""))
+        query = cast("dict[str, Any]", body.get("query", ""))
         sortField = cast(str, body.get("sortField", "CUSTOM"))
         sortOrder = cast(str, body.get("sortOrder", "ASCENDING"))
 
@@ -234,7 +249,7 @@ class LeetCodeQuestionHandler(LeetCodeHandler):
                 "variables": {
                     "skip": skip,
                     "limit": limit,
-                    "searchKeyword": keyword,
+                    "searchKeyword": query["keyword"],
                     "categorySlug": "algorithms",
                     "filters": {
                         "filterCombineType": "ALL",
