@@ -103,4 +103,8 @@ export type LeetCodeSubmissionResult =
 
 export type LeetCodeQuestionQuery = {
   keyword: string;
+  difficulties: string[];
+  statuses: string[];
+  topics: string[];
+  companies: string[];
 };

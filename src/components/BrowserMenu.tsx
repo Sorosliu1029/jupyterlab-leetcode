@@ -125,7 +125,7 @@ const BrowserMenu: React.FC<{
     >
       <Menu.Target>
         <Button
-          rightSection={<IconChevronDown size={18} stroke={1.5} />}
+          rightSection=<IconChevronDown size={18} stroke={1.5} />
           pr={12}
           radius="md"
           size="md"

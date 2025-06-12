@@ -44,9 +44,9 @@ const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
   };
 
   return (
-    <Container fluid={true} h={'100%'} p="lg" id="jll-main">
+    <Container fluid={true} h="100%" p="lg" id="jll-main">
       <Stack>
-        <Group id="jll-profile">
+        <Group id="jll-profile" h={146}>
           {profile && <Profile profile={profile} />}
           {profile && <Statistics username={profile.username} />}
         </Group>

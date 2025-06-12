@@ -7,7 +7,7 @@ const DifficultyStatistics: React.FC<{ text: string; color: string }> = ({
 }) => {
   return (
     <Stack>
-      <Text>{text.charAt(0).toUpperCase() + text.slice(1)}</Text>
+      <Text tt="capitalize">{text}</Text>
     </Stack>
   );
 };

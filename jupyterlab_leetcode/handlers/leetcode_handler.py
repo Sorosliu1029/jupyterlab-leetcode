@@ -254,16 +254,28 @@ class LeetCodeQuestionHandler(LeetCodeHandler):
                     "categorySlug": "algorithms",
                     "filters": {
                         "filterCombineType": "ALL",
-                        "statusFilter": {"questionStatuses": [], "operator": "IS"},
-                        "difficultyFilter": {"difficulties": [], "operator": "IS"},
+                        "statusFilter": {
+                            "questionStatuses": query["statuses"],
+                            "operator": "IS",
+                        },
+                        "difficultyFilter": {
+                            "difficulties": query["difficulties"],
+                            "operator": "IS",
+                        },
                         "languageFilter": {"languageSlugs": [], "operator": "IS"},
-                        "topicFilter": {"topicSlugs": [], "operator": "IS"},
+                        "topicFilter": {
+                            "topicSlugs": query["topics"],
+                            "operator": "IS",
+                        },
                         "acceptanceFilter": {},
                         "frequencyFilter": {},
                         "frontendIdFilter": {},
                         "lastSubmittedFilter": {},
                         "publishedFilter": {},
-                        "companyFilter": {"companySlugs": [], "operator": "IS"},
+                        "companyFilter": {
+                            "companySlugs": query["companies"],
+                            "operator": "IS",
+                        },
                         "positionFilter": {"positionSlugs": [], "operator": "IS"},
                         "premiumFilter": {"premiumStatus": [], "operator": "IS"},
                     },

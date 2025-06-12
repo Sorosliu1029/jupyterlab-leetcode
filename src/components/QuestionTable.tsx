@@ -3,9 +3,12 @@ import { Notification } from '@jupyterlab/apputils';
 import { listQuestions } from '../services/leetcode';
 import { LeetCodeQuestion, LeetCodeQuestionQuery } from '../types/leetcode';
 import QuestionItem from './QuestionItem';
-import { Table, Text, Stack, ScrollArea, Skeleton } from '@mantine/core';
-import QuestionQueryBar from './QuestionQueryBar';
-import { useDebouncedState } from '@mantine/hooks';
+import { Table, Text, Stack, ScrollArea, Skeleton, Group } from '@mantine/core';
+import QuestionQueryKeyword from './QuestionQueryKeyword';
+import QuestionDifficultyFilter from './QuestionDifficultyFilter';
+import QuestionStatusFilter from './QuestionStatusFilter';
+import QuestionTopicFilter from './QuestionTopicFilter';
+import QuestionCompanyFilter from './QuestionCompanyFilter';
 
 const QuestionTable: React.FC<{
   openNotebook: (p: string) => void;
@@ -17,15 +20,14 @@ const QuestionTable: React.FC<{
   const [skip, setSkip] = useState(0);
   const [questions, setQuestions] = useState<LeetCodeQuestion[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [_finishedLength, setFinishedLength] = useState(0);
-  const [_totalLength, setTotalLength] = useState(0);
 
-  const [query, setQuery] = useDebouncedState<LeetCodeQuestionQuery>(
-    {
-      keyword: ''
-    },
-    100
-  );
+  const [query, setQuery] = useState<LeetCodeQuestionQuery>({
+    keyword: '',
+    difficulties: [],
+    statuses: [],
+    topics: [],
+    companies: []
+  });
 
   const updateQuery = (newQuery: LeetCodeQuestionQuery) => {
     setQuery(newQuery);
@@ -37,17 +39,12 @@ const QuestionTable: React.FC<{
   useEffect(() => {
     listQuestions(query, skip, limit)
       .then(({ problemsetQuestionListV2 }) => {
+        const qs = fetching ? [] : questions; // fix datarace to ensure distinct key
         setFetching(false);
-        const {
-          questions: fetchedQuestions,
-          hasMore: fetchedHasMore,
-          finishedLength: fetchedFinishedLength,
-          totalLength: fetchedTotalLength
-        } = problemsetQuestionListV2;
-        setQuestions(questions.concat(fetchedQuestions));
+        const { questions: fetchedQuestions, hasMore: fetchedHasMore } =
+          problemsetQuestionListV2;
+        setQuestions(qs.concat(fetchedQuestions));
         setHasMore(fetchedHasMore);
-        setFinishedLength(fetchedFinishedLength);
-        setTotalLength(fetchedTotalLength);
       })
       .catch(e => {
         Notification.error(e.message, { autoClose: 3000 });
@@ -56,13 +53,15 @@ const QuestionTable: React.FC<{
 
   const getTableRows = () => {
     if (fetching) {
-      return new Array(10).fill(null).map((_, i) => (
-        <Table.Tr key={i}>
-          <Table.Td>
-            <Skeleton height={40} mt="md" radius="xl" />
-          </Table.Td>
-        </Table.Tr>
-      ));
+      return Array(10)
+        .fill(null)
+        .map((_, i) => (
+          <Table.Tr key={i}>
+            <Table.Td>
+              <Skeleton height="1lh" radius="md" />
+            </Table.Td>
+          </Table.Tr>
+        ));
     }
     if (!questions.length) {
       return (
@@ -87,13 +86,30 @@ const QuestionTable: React.FC<{
 
   return (
     <Stack h={height} pb="lg">
-      <QuestionQueryBar query={query} updateQuery={updateQuery} />
+      <Group>
+        <QuestionQueryKeyword
+          updateKeyword={k => updateQuery({ ...query, keyword: k })}
+        />
+        <QuestionStatusFilter
+          updateStatuses={ss => updateQuery({ ...query, statuses: ss })}
+        />
+        <QuestionDifficultyFilter
+          updateDifficulties={ds => updateQuery({ ...query, difficulties: ds })}
+        />
+        <QuestionTopicFilter
+          updateTopics={ts => updateQuery({ ...query, topics: ts })}
+        />
+        <QuestionCompanyFilter
+          updateCompanies={cs => updateQuery({ ...query, companies: cs })}
+        />
+      </Group>
+      {/* TODO: show fetching more loading icon */}
       <ScrollArea
         type="scroll"
-        onBottomReached={() => (hasMore ? setSkip(skip + limit) : null)}
+        onBottomReached={() => (hasMore ? setSkip(s => s + limit) : null)}
       >
         <Table
-          striped={!fetching}
+          striped
           withRowBorders={false}
           verticalSpacing="xs"
           layout="fixed"

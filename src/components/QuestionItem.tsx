@@ -29,6 +29,14 @@ const DifficultyAbbreviations: Record<string, string> = {
   hard: 'Hard'
 };
 
+export const StatusColors: Record<string, string> = {
+  SOLVED: 'green',
+  ATTEMPTED: 'violet',
+  TO_DO: 'gray'
+};
+
+const IconProps = { size: 16, stroke: 1.5 };
+
 const QuestionItem: React.FC<{
   question: LeetCodeQuestion;
   onGenerateSuccess: (p: string) => void;
@@ -36,7 +44,6 @@ const QuestionItem: React.FC<{
   const [showGenerateIcon, setShowGenerateIcon] = React.useState(false);
 
   const statusIcon = () => {
-    const size = 16;
     if (!question.status) {
       return null;
     }
@@ -44,29 +51,29 @@ const QuestionItem: React.FC<{
       case 'SOLVED':
         return (
           <Tooltip fz="xs" label="Solved">
-            <IconCheck size={size} color="green" stroke={1.5} />
+            <IconCheck color={StatusColors[question.status]} {...IconProps} />
           </Tooltip>
         );
       case 'ATTEMPTED':
         return (
           <Tooltip fz="xs" label="Attempted">
-            <IconCircle size={size} color="gray" stroke={1.5} />
+            <IconCircle color={StatusColors[question.status]} {...IconProps} />
           </Tooltip>
         );
       case 'TO_DO':
       default:
         return question.paidOnly ? (
           <Tooltip fz="xs" label="Paid Only">
-            <IconLock size={size} color={LeetCodeMainColor} stroke={1.5} />
+            <IconLock color={LeetCodeMainColor} {...IconProps} />
           </Tooltip>
         ) : (
-          <div style={{ width: size, height: size }}></div>
+          <div style={{ width: IconProps.size, height: IconProps.size }}></div>
         );
     }
   };
 
-  const generate = (slug: string) => {
-    generateNotebook(slug)
+  const generate = () => {
+    generateNotebook(question.titleSlug)
       .then(({ filePath }) => {
         onGenerateSuccess(filePath);
       })
@@ -88,13 +95,15 @@ const QuestionItem: React.FC<{
             fz="sm"
             fw={600}
           >
+            {question.questionFrontendId}
+            {'. '}
             {question.title}
           </Anchor>
         </Group>
       </Table.Td>
 
       <Table.Td className={classes.ac_column}>
-        <Tooltip fz="xs" label="Acceptance Rate" position={'top-start'}>
+        <Tooltip fz="xs" label="Acceptance Rate" position="top-start">
           <Text fz="sm" c="gray">
             {(question.acRate * 100).toFixed(2)}%
           </Text>
@@ -122,7 +131,7 @@ const QuestionItem: React.FC<{
                 size="sm"
                 variant="transparent"
                 color={LeetCodeMainColor}
-                onClick={() => generate(question.titleSlug)}
+                onClick={() => generate()}
               >
                 <IconBrandLeetcode stroke={1.5} />
               </ActionIcon>

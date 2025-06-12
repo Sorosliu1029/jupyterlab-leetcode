@@ -1,38 +1,27 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { LeetCodeTopicTag } from '../types/leetcode';
-import { Group, HoverCard, List, Text, ThemeIcon } from '@mantine/core';
+import { Badge, Group, HoverCard, List, ThemeIcon } from '@mantine/core';
 import { IconHash } from '@tabler/icons-react';
 import { LeetCodeSecondColor } from './LandingPage';
-
-const TopicAbbreviationMaxLength = 12;
 
 const QuestionTopics: React.FC<{ topics: LeetCodeTopicTag[] }> = ({
   topics
 }) => {
-  const myRef = useRef<HTMLParagraphElement>(null);
-
-  const getQuestionTopicAbbreviation = () => {
-    const tags = topics.map(t => t.name);
-    if (!tags.length) {
-      return '';
-    }
-    const abb =
-      tags.length === 1
-        ? tags[0]
-        : [...tags].sort((a, b) => a.length - b.length).join(' / ');
-    if (abb.length < TopicAbbreviationMaxLength) {
-      return abb;
-    }
-    return abb.slice(0, TopicAbbreviationMaxLength) + '...';
-  };
-
   return (
-    <Group justify="center">
-      <HoverCard shadow="md" openDelay={200}>
+    <Group
+      justify="flex-start"
+      wrap="nowrap"
+      style={{ overflow: 'scroll', scrollbarWidth: 'none' }}
+    >
+      <HoverCard shadow="md" openDelay={200} position="bottom-start">
         <HoverCard.Target>
-          <Text ref={myRef} fz="sm">
-            {getQuestionTopicAbbreviation()}
-          </Text>
+          <Group style={{ flexShrink: 0 }}>
+            {topics.map(t => (
+              <Badge variant="light" key={t.name}>
+                {t.name}
+              </Badge>
+            ))}
+          </Group>
         </HoverCard.Target>
         <HoverCard.Dropdown>
           {/* TODO: group and color topics by skills */}

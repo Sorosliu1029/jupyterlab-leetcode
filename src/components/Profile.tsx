@@ -11,8 +11,8 @@ const Profile: React.FC<{
       radius="md"
       withBorder
       p="sm"
-      miw={'20%'}
-      maw={'40%'}
+      miw="20%"
+      maw="40%"
       bg="var(--mantine-color-body)"
     >
       <Avatar src={profile.avatar} size={60} radius={60} mx="auto" />
