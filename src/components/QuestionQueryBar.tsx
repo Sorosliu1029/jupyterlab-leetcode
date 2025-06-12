@@ -12,7 +12,6 @@ const QuestionQueryBar: React.FC<{
       placeholder="Search questions"
       mb="md"
       leftSection={<IconSearch size={16} stroke={1.5} />}
-      value={query.keyword}
       onChange={e => updateQuery({ ...query, keyword: e.target.value })}
     />
   );

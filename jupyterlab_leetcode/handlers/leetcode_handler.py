@@ -23,6 +23,7 @@ class LeetCodeHandler(BaseHandler):
     """Base handler for LeetCode-related requests."""
 
     async def prepare(self) -> None:
+        """Prepare the handler by checking for LeetCode cookies."""
         await super().prepare()
         if not self.settings.get("leetcode_headers"):
             browser = self.get_cookie("leetcode_browser")

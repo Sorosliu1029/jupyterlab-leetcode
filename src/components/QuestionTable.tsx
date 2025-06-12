@@ -5,6 +5,7 @@ import { LeetCodeQuestion, LeetCodeQuestionQuery } from '../types/leetcode';
 import QuestionItem from './QuestionItem';
 import { Table, Text, Stack, ScrollArea, Skeleton } from '@mantine/core';
 import QuestionQueryBar from './QuestionQueryBar';
+import { useDebouncedState } from '@mantine/hooks';
 
 const QuestionTable: React.FC<{
   openNotebook: (p: string) => void;
@@ -19,7 +20,12 @@ const QuestionTable: React.FC<{
   const [_finishedLength, setFinishedLength] = useState(0);
   const [_totalLength, setTotalLength] = useState(0);
 
-  const [query, setQuery] = useState<LeetCodeQuestionQuery>({ keyword: '' });
+  const [query, setQuery] = useDebouncedState<LeetCodeQuestionQuery>(
+    {
+      keyword: ''
+    },
+    100
+  );
 
   const updateQuery = (newQuery: LeetCodeQuestionQuery) => {
     setQuery(newQuery);
