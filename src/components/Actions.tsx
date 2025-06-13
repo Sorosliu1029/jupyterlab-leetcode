@@ -1,5 +1,6 @@
 import {
   Anchor,
+  Center,
   Paper,
   PaperProps,
   Stack,
@@ -43,23 +44,25 @@ const Actions: React.FC<{
   paperProps: PaperProps;
 }> = ({ paperProps }) => {
   return (
-    <Paper {...paperProps}>
-      <Stack gap="xs">
-        {...Data.map(item => (
-          <Tooltip label={item.label} key={item.label}>
-            <Anchor
-              size="xs"
-              target="_blank"
-              underline="never"
-              href={item.href}
-            >
-              <ThemeIcon size="sm" variant="white">
-                {item.icon}
-              </ThemeIcon>
-            </Anchor>
-          </Tooltip>
-        ))}
-      </Stack>
+    <Paper {...paperProps} style={{ alignContent: 'center' }}>
+      <Center>
+        <Stack gap="xs">
+          {Data.map(item => (
+            <Tooltip label={item.label} key={item.label}>
+              <Anchor
+                size="xs"
+                target="_blank"
+                underline="never"
+                href={item.href}
+              >
+                <ThemeIcon size="sm" variant="white">
+                  {item.icon}
+                </ThemeIcon>
+              </Anchor>
+            </Tooltip>
+          ))}
+        </Stack>
+      </Center>
     </Paper>
   );
 };

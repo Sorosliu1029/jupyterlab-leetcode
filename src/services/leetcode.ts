@@ -2,7 +2,8 @@ import {
   LeetCodeProfile,
   LeetCodeQuestion,
   LeetCodeQuestionQuery,
-  LeetCodeStatistics
+  LeetCodeStatistics,
+  LeetCodeSubmissionCalendar
 } from '../types/leetcode';
 import { requestAPI } from './handler';
 
@@ -36,4 +37,12 @@ export async function listQuestions(
     method: 'POST',
     body: JSON.stringify({ query, skip, limit })
   }).then(d => d.data);
+}
+
+export async function getSubmissionCalendar(username: string) {
+  return requestAPI<{
+    data: { matchedUser: { userCalendar: LeetCodeSubmissionCalendar } };
+  }>(`/leetcode/submission?username=${username}`).then(
+    d => d.data.matchedUser.userCalendar
+  );
 }

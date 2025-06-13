@@ -7,15 +7,10 @@ const Profile: React.FC<{
   paperProps: PaperProps;
 }> = ({ profile, paperProps }) => {
   return (
-    <Paper
-      miw="20%"
-      maw="40%"
-      {...paperProps}
-      style={{ alignContent: 'center' }}
-    >
+    <Paper {...paperProps} style={{ alignContent: 'center' }}>
       <Center>
         <Stack gap={0}>
-          <Avatar src={profile?.avatar} size="md" radius="xl" mx="auto" />
+          <Avatar src={profile?.avatar} size="lg" radius="xl" mx="auto" />
           <Text ta="center" fz="md" fw={500} mt="xs">
             {profile?.realName}
           </Text>

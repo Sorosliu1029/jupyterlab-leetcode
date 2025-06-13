@@ -79,13 +79,10 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
   };
 
   const getResultCell = () => {
-    let resultCellModel: ICellModel | null = null;
     const cells = notebook.content.model?.cells ?? [];
-    for (const cell of cells) {
-      if (cell.metadata['id'] === 'result') {
-        resultCellModel = cell;
-      }
-    }
+    let resultCellModel = Array.from(cells).find(
+      c => c.metadata['id'] === 'result'
+    );
     if (!resultCellModel) {
       const activeCellIdx = cells.length ? cells.length - 1 : 0;
       notebook.content.activeCellIndex = activeCellIdx;

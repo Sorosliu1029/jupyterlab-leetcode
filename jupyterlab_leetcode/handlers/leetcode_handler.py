@@ -189,6 +189,41 @@ class LeetCodeStatisticsHandler(LeetCodeHandler):
         self.finish(res)
 
 
+class LeetCodeSubmissionCalendarHandlar(LeetCodeHandler):
+    route = r"leetcode/submission"
+
+    @tornado.web.authenticated
+    async def get(self):
+        username = self.get_query_argument("username", "", strip=True)
+        if not username:
+            self.set_status(400)
+            self.finish(json.dumps({"message": "Username parameter is required"}))
+            return
+        await self.graphql(
+            name="submission_calendar",
+            query={
+                "query": """query userProfileCalendar($username: String!, $year: Int) {
+                                        matchedUser(username: $username) {
+                                            userCalendar(year: $year) {
+                                                activeYears
+                                                streak
+                                                totalActiveDays
+                                                dccBadges {
+                                                    timestamp
+                                                    badge {
+                                                        name
+                                                        icon
+                                                    }
+                                                }
+                                                submissionCalendar
+                                            }
+                                        }
+                                    }""",
+                "variables": {"username": username},
+            },
+        )
+
+
 class LeetCodeQuestionHandler(LeetCodeHandler):
     route = r"leetcode/questions"
 

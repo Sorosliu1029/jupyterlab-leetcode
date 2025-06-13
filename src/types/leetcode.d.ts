@@ -108,3 +108,16 @@ export type LeetCodeQuestionQuery = {
   topics: string[];
   companies: string[];
 };
+
+export type LeetCodeDccBadge = {
+  timestamp: number;
+  badge: { name: string; icon: string };
+};
+
+export type LeetCodeSubmissionCalendar = {
+  activeYears: number[];
+  dccBadges: LeetCodeDccBadge[];
+  streak: number;
+  totalActiveDays: number;
+  submissionCalendar: string;
+};

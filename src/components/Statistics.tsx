@@ -106,85 +106,88 @@ const Statistics: React.FC<{
   const getTotalCount = () => all?.get('all') || 0;
 
   return (
-    <Paper {...paperProps}>
-      <Group>
-        <RingProgress
-          size={120}
-          thickness={8}
-          roundCaps
-          sections={
-            isHovering && difficultySections
-              ? difficultySections
-              : getProgressSections()
-          }
-          label={
-            <Center>
-              <Stack gap={0} align="center">
-                {isHovering ? (
-                  <>
-                    <Text fz="xs">Beats</Text>
-                    <Group gap={0}>
-                      <Text fw="bolder" fz="lg">
-                        {Math.floor(beats ?? totalBeats)}
-                      </Text>
-                      <Text fz="sm">
-                        .{(beats ?? totalBeats).toFixed(2).split('.')[1]}%
-                      </Text>
-                    </Group>
-                  </>
-                ) : (
-                  <>
-                    <Group gap={0}>
-                      <Text fw="bolder" fz="lg">
-                        {getTotalAc()}
-                      </Text>
-                      <Text fz="sm">/{getTotalCount()}</Text>
-                    </Group>
-                    <Group gap={0}>
-                      <IconCheck
-                        size={12}
-                        stroke={1.5}
-                        color={StatusColors['SOLVED']}
-                      />
-                      <Text fz="xs">Solved</Text>
-                    </Group>
-                  </>
-                )}
-              </Stack>
-            </Center>
-          }
-          onMouseOver={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        />
-        <Stack gap="xs" w="5em">
-          {Object.entries(DifficultyColors).map(([d, c]) => (
-            <DifficultyStatistics
-              key={d}
-              text={d}
-              color={c}
-              solved={accepted?.get(d) ?? 0}
-              total={all?.get(d) ?? 0}
-              onHover={() => {
-                setIsHovering(true);
-                setBeats(difficultyBeats?.get(d) ?? 0);
-                setDifficultySections([
-                  {
-                    value: Math.round(
-                      ((accepted?.get(d) ?? 0) / (all?.get(d) ?? 0)) * 100
-                    ),
-                    color: c
-                  }
-                ]);
-              }}
-              onLeave={() => {
-                setIsHovering(false);
-                setBeats(null);
-                setDifficultySections(null);
-              }}
-            />
-          ))}
-        </Stack>
-      </Group>
+    <Paper {...paperProps} style={{ alignContent: 'center' }}>
+      <Center>
+        <Group>
+          <RingProgress
+            size={120}
+            thickness={8}
+            roundCaps
+            transitionDuration={250}
+            sections={
+              isHovering && difficultySections
+                ? difficultySections
+                : getProgressSections()
+            }
+            label={
+              <Center>
+                <Stack gap={0} align="center">
+                  {isHovering ? (
+                    <>
+                      <Text fz="xs">Beats</Text>
+                      <Group gap={0}>
+                        <Text fw="bolder" fz="lg">
+                          {Math.floor(beats ?? totalBeats)}
+                        </Text>
+                        <Text fz="sm">
+                          .{(beats ?? totalBeats).toFixed(2).split('.')[1]}%
+                        </Text>
+                      </Group>
+                    </>
+                  ) : (
+                    <>
+                      <Group gap={0}>
+                        <Text fw="bolder" fz="lg">
+                          {getTotalAc()}
+                        </Text>
+                        <Text fz="xs">/{getTotalCount()}</Text>
+                      </Group>
+                      <Group gap={0}>
+                        <IconCheck
+                          size={12}
+                          stroke={1.5}
+                          color={StatusColors['SOLVED']}
+                        />
+                        <Text fz="xs">Solved</Text>
+                      </Group>
+                    </>
+                  )}
+                </Stack>
+              </Center>
+            }
+            onMouseOver={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          />
+          <Stack gap="xs" w="5em">
+            {Object.entries(DifficultyColors).map(([d, c]) => (
+              <DifficultyStatistics
+                key={d}
+                text={d}
+                color={c}
+                solved={accepted?.get(d) ?? 0}
+                total={all?.get(d) ?? 0}
+                onHover={() => {
+                  setIsHovering(true);
+                  setBeats(difficultyBeats?.get(d) ?? 0);
+                  setDifficultySections([
+                    {
+                      value: Math.round(
+                        ((accepted?.get(d) ?? 0) / (all?.get(d) ?? 0)) * 100
+                      ),
+                      color: c
+                    }
+                  ]);
+                }}
+                onLeave={() => {
+                  setIsHovering(false);
+                  setBeats(null);
+                  setDifficultySections(null);
+                }}
+              />
+            ))}
+          </Stack>
+        </Group>
+      </Center>
     </Paper>
   );
 };

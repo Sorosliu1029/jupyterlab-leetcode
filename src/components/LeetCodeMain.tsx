@@ -8,6 +8,7 @@ import Profile from './Profile';
 import Statistics from './Statistics';
 import QuestionTable from './QuestionTable';
 import Actions from './Actions';
+import SubmissionCalendar from './SubmissionCalendar';
 
 const MainHeaderPaperProps: PaperProps = {
   shadow: 'md',
@@ -55,13 +56,20 @@ const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
   return (
     <Container fluid={true} h="100%" p="lg" id="jll-main">
       <Stack>
-        <Group id="jll-profile" align="stretch">
-          <Profile paperProps={MainHeaderPaperProps} profile={profile} />
+        <Group id="jll-profile" wrap="nowrap" align="stretch">
+          <Profile
+            paperProps={{ ...MainHeaderPaperProps, w: '15%' }}
+            profile={profile}
+          />
           <Statistics
-            paperProps={MainHeaderPaperProps}
+            paperProps={{ ...MainHeaderPaperProps, w: '30%' }}
             username={profile?.username}
           />
-          <Actions paperProps={MainHeaderPaperProps} />
+          <SubmissionCalendar
+            paperProps={{ ...MainHeaderPaperProps, w: '50%' }}
+            username={profile?.username}
+          />
+          <Actions paperProps={{ ...MainHeaderPaperProps, w: '5%' }} />
         </Group>
         <QuestionTable openNotebook={openNoteBook} height={calcHeight()} />
       </Stack>
