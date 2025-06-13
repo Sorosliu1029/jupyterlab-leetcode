@@ -7,6 +7,7 @@ import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
 import Statistics from './Statistics';
 import QuestionTable from './QuestionTable';
+import Actions from './Actions';
 
 const MainHeaderPaperProps: PaperProps = {
   shadow: 'md',
@@ -60,6 +61,7 @@ const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
             paperProps={MainHeaderPaperProps}
             username={profile?.username}
           />
+          <Actions paperProps={MainHeaderPaperProps} />
         </Group>
         <QuestionTable openNotebook={openNoteBook} height={calcHeight()} />
       </Stack>
