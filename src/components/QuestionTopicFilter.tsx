@@ -5,6 +5,7 @@ import classes from '../styles/Filter.module.css';
 
 const CheckedIcon = <IconCheck size={12} stroke={1.5} />;
 
+// TODO: fill data
 const Data = ['array', 'hash-table'];
 
 const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({

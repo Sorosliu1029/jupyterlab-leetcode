@@ -13,7 +13,7 @@ const dates = Array(ShowWeeks * 7 + today.getUTCDay() + 1) // ensure table colum
   .map((_, i) => new Date(today.getTime() - i * ADay));
 const months = Array.from(
   new Map(
-    dates.map(d => [d.getUTCFullYear() * 100 + d.getMonth(), d])
+    dates.map(d => [d.getUTCFullYear() * 100 + d.getUTCMonth(), d])
   ).entries()
 ).sort(([a], [b]) => a - b);
 const monthHead = (

@@ -50,7 +50,7 @@ const Actions: React.FC<{
           {Data.map(item => (
             <Tooltip label={item.label} key={item.label}>
               <Anchor
-                size="xs"
+                size="sm"
                 target="_blank"
                 underline="never"
                 href={item.href}

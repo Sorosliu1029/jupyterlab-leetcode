@@ -17,8 +17,9 @@ class GetCookieHandler(BaseHandler):
             cookie = get_leetcode_cookie(
                 browser, self.settings, self.request.headers.get("User-Agent", "")
             )
-            self.set_cookie("leetcode_browser", browser, expires=cookie["expires"])
+            if not cookie["expired"] and cookie["expires"]:
+                self.set_cookie("leetcode_browser", browser, expires=cookie["expires"])
             self.finish(json.dumps(cookie))
         except Exception as e:
             self.set_status(400)
-            self.finish(json.dumps({"message": str(e.args)}))
+            self.finish(json.dumps({"message": str(e)}))

@@ -55,11 +55,9 @@ def get_leetcode_cookie(browser: str, settings: dict[str, Any], ua: str):
     try:
         cj = BROWSER_COOKIE_METHOD_MAP[browser](domain_name="leetcode.com")
     except browser_cookie3.BrowserCookieError as e:
-        raise Exception(
-            "Failed to retrieve cookies. Maybe not installed the browser?"
-        ) from e
+        raise Exception("Failed to retrieve cookies. Maybe not installed the browser?")
     except Exception as e:
-        raise Exception(f"An error occurred: {str(e)}") from e
+        raise Exception(f"An error occurred: {str(e)}")
 
     cookie_session = first(cj, lambda c: c.name == "LEETCODE_SESSION")
     cookie_csrf = first(cj, lambda c: c.name == "csrftoken")
@@ -70,7 +68,9 @@ def get_leetcode_cookie(browser: str, settings: dict[str, Any], ua: str):
     )
     checked = exist and not expired
 
-    expires = cast(Cookie, cookie_session).expires
+    expires = None
+    if checked:
+        expires = cast(Cookie, cookie_session).expires
 
     settings.update(
         leetcode_headers=HTTPHeaders(

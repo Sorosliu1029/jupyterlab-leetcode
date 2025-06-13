@@ -104,8 +104,8 @@ const BrowserMenu: React.FC<{
       .then(resp => {
         if (!resp['checked']) {
           Notification.error(
-            `Failed to check cookie for ${browser}. Please ensure you are logged in to LeetCode in ${browser}.`,
-            { autoClose: 3000 }
+            `Failed to check cookie for ${browser}. Have you logged in LeetCode in ${browser}?`,
+            { autoClose: 5000 }
           );
           return;
         }
@@ -134,7 +134,7 @@ const BrowserMenu: React.FC<{
         </Button>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Label>With LeetCode logged in</Menu.Label>
+        <Menu.Label>Where LeetCode logged in:</Menu.Label>
         {Browsers.map(({ name, icon }) => (
           <Menu.Item
             key={name}
