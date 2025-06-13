@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { Notification } from '@jupyterlab/apputils';
-import { Container, Group, Stack } from '@mantine/core';
+import { Container, Group, PaperProps, Stack } from '@mantine/core';
 import { getProfile } from '../services/leetcode';
 import { LeetCodeProfile } from '../types/leetcode';
 import Profile from './Profile';
 import Statistics from './Statistics';
 import QuestionTable from './QuestionTable';
+
+const MainHeaderPaperProps: PaperProps = {
+  shadow: 'md',
+  radius: 'md',
+  withBorder: true,
+  p: 'sm',
+  bg: 'var(--mantine-color-body)'
+};
 
 const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
   docManager
@@ -46,9 +54,12 @@ const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
   return (
     <Container fluid={true} h="100%" p="lg" id="jll-main">
       <Stack>
-        <Group id="jll-profile" h={146}>
-          {profile && <Profile profile={profile} />}
-          {profile && <Statistics username={profile.username} />}
+        <Group id="jll-profile" align="stretch">
+          <Profile paperProps={MainHeaderPaperProps} profile={profile} />
+          <Statistics
+            paperProps={MainHeaderPaperProps}
+            username={profile?.username}
+          />
         </Group>
         <QuestionTable openNotebook={openNoteBook} height={calcHeight()} />
       </Stack>

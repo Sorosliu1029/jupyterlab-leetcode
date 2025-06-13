@@ -8,7 +8,7 @@ import {
   MantineThemeOverride
 } from '@mantine/core';
 import JupyterMainArea from './components/JupyterMainArea';
-import LeetCodeNotebookToolbar from './components/LeetCodeNotebookToolbar';
+import NotebookToolbar from './components/NotebookToolbar';
 
 export class JupyterMainWidget extends ReactWidget {
   docManager: IDocumentManager;
@@ -46,7 +46,7 @@ export class LeetCodeToolbarWidget extends ReactWidget {
   render(): JSX.Element {
     return (
       <StrictMode>
-        <LeetCodeNotebookToolbar notebook={this.notebook} />
+        <NotebookToolbar notebook={this.notebook} />
       </StrictMode>
     );
   }

@@ -1,13 +1,22 @@
 import React from 'react';
 import { Stack, Text } from '@mantine/core';
 
-const DifficultyStatistics: React.FC<{ text: string; color: string }> = ({
-  text,
-  color
-}) => {
+const DifficultyStatistics: React.FC<{
+  text: string;
+  color: string;
+  solved: number;
+  total: number;
+  onHover: () => void;
+  onLeave: () => void;
+}> = ({ text, color, solved, total, onHover, onLeave }) => {
   return (
-    <Stack>
-      <Text tt="capitalize">{text}</Text>
+    <Stack bg="#FAFAFA" onMouseOver={onHover} onMouseLeave={onLeave} gap={0}>
+      <Text tt="capitalize" c={color} size="xs" ta="center" fw="bolder">
+        {text}
+      </Text>
+      <Text size="xs" fw="bold" ta="center">
+        {solved}/{total}
+      </Text>
     </Stack>
   );
 };

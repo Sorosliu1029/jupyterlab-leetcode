@@ -1,27 +1,29 @@
 import React from 'react';
-import { Avatar, Paper, Text } from '@mantine/core';
+import { Avatar, Center, Paper, PaperProps, Stack, Text } from '@mantine/core';
 import { LeetCodeProfile } from '../types/leetcode';
 
 const Profile: React.FC<{
-  profile: LeetCodeProfile;
-}> = ({ profile }) => {
+  profile: LeetCodeProfile | null;
+  paperProps: PaperProps;
+}> = ({ profile, paperProps }) => {
   return (
     <Paper
-      shadow="md"
-      radius="md"
-      withBorder
-      p="sm"
       miw="20%"
       maw="40%"
-      bg="var(--mantine-color-body)"
+      {...paperProps}
+      style={{ alignContent: 'center' }}
     >
-      <Avatar src={profile.avatar} size={60} radius={60} mx="auto" />
-      <Text ta="center" fz="md" fw={500} mt="xs">
-        {profile.realName}
-      </Text>
-      <Text ta="center" c="dimmed" fz="xs">
-        {profile.username}
-      </Text>
+      <Center>
+        <Stack gap={0}>
+          <Avatar src={profile?.avatar} size="md" radius="xl" mx="auto" />
+          <Text ta="center" fz="md" fw={500} mt="xs">
+            {profile?.realName}
+          </Text>
+          <Text ta="center" c="dimmed" fz="xs">
+            {profile?.username}
+          </Text>
+        </Stack>
+      </Center>
     </Paper>
   );
 };
