@@ -1,6 +1,14 @@
 import React from 'react';
 
-import { Button, Container, Group, Text, Tooltip, Anchor } from '@mantine/core';
+import {
+  Button,
+  Container,
+  Group,
+  Text,
+  Tooltip,
+  Anchor,
+  Paper
+} from '@mantine/core';
 import { IconBrandGithub, IconBrandLinkedin } from '@tabler/icons-react';
 import classes from '../styles/LandingPage.module.css';
 import Footer from './Footer';
@@ -40,8 +48,8 @@ const LandingPage: React.FC<{
   ];
 
   return (
-    <div className={classes.wrapper}>
-      <Container size={700} className={classes.inner}>
+    <Paper>
+      <Container size={700} pt={200}>
         <h1 className={classes.title}>
           Welcome to{' '}
           <Text
@@ -67,14 +75,23 @@ const LandingPage: React.FC<{
           >
             log into LeetCode
           </Anchor>
-          .
+          <sup>*</sup>
         </Text>
 
         <Group className={classes.controls}>{...options}</Group>
 
+        <Text
+          size="sm"
+          c="dimmed"
+          mt="calc(var(--mantine-spacing-xl) * 2)"
+          mb="sm"
+        >
+          * leetcode.cn not supported yet.
+        </Text>
+
         <Footer />
       </Container>
-    </div>
+    </Paper>
   );
 };
 

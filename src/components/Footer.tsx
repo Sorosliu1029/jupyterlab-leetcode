@@ -1,6 +1,5 @@
 import React from 'react';
-import { Anchor, Container, Group } from '@mantine/core';
-import classes from '../styles/Footer.module.css';
+import { Anchor, Group } from '@mantine/core';
 import { IconBrandLeetcode } from '@tabler/icons-react';
 
 const Links = [
@@ -14,24 +13,29 @@ const Links = [
 
 const Footer = () => {
   return (
-    <div className={classes.footer}>
-      <Container className={classes.inner}>
-        <IconBrandLeetcode size={28} />
-        <Group className={classes.links}>
-          {Links.map(link => (
-            <Anchor<'a'>
-              c="dimmed"
-              key={link.label}
-              href={link.link}
-              target="_blank"
-              size="sm"
-            >
-              {link.label}
-            </Anchor>
-          ))}
-        </Group>
-      </Container>
-    </div>
+    <Group
+      justify="space-between"
+      pt="md"
+      style={{
+        borderTop:
+          '1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))'
+      }}
+    >
+      <IconBrandLeetcode size={28} />
+      <Group>
+        {Links.map(link => (
+          <Anchor<'a'>
+            c="dimmed"
+            key={link.label}
+            href={link.link}
+            target="_blank"
+            size="sm"
+          >
+            {link.label}
+          </Anchor>
+        ))}
+      </Group>
+    </Group>
   );
 };
 

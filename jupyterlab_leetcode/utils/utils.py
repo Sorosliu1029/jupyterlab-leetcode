@@ -55,7 +55,7 @@ def get_leetcode_cookie(browser: str, settings: dict[str, Any], ua: str):
     try:
         cj = BROWSER_COOKIE_METHOD_MAP[browser](domain_name="leetcode.com")
     except browser_cookie3.BrowserCookieError as e:
-        raise Exception("Failed to retrieve cookies. Maybe not installed the browser?")
+        raise Exception(f"Failed to retrieve cookies. Maybe {browser} not installed?")
     except Exception as e:
         raise Exception(f"An error occurred: {str(e)}")
 
