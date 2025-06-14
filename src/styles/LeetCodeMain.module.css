@@ -18,3 +18,53 @@
   width: 70%;
   height: 70%;
 }
+
+.table {
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+  width: unset;
+}
+
+.head {
+  padding: 0;
+}
+
+.cell {
+  width: 10px;
+  min-width: 10px;
+  max-width: 10px;
+  border: 0.5px solid #1f23280d;
+  border-radius: 2px;
+  padding: 0;
+}
+
+.filter_selected input {
+  width: 0;
+  min-width: unset;
+}
+
+.filter_empty input {
+  width: 5em;
+  min-width: unset;
+}
+
+.status_filter_empty input {
+  width: 4em;
+  min-width: unset;
+}
+
+.difficulty_filter_empty input {
+  width: 4.5em;
+  min-width: unset;
+}
+
+.topic_filter_empty input {
+  width: 9em;
+  min-width: unset;
+}
+
+.company_filter_empty input {
+  width: 5em;
+  min-width: unset;
+}

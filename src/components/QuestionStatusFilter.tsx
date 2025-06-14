@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
 import { IconCheck, IconCheckbox } from '@tabler/icons-react';
 import { StatusColors } from './QuestionItem';
-import classes from '../styles/Filter.module.css';
+import classes from '../styles/LeetCodeMain.module.css';
 
 const CheckedIcon = <IconCheck size={12} stroke={1.5} />;
 
@@ -46,7 +46,9 @@ const QuestionStatusFilter: React.FC<{
         setSelected(v.length > 0);
         updateStatuses(v);
       }}
-      className={selected ? classes.filter_selected : classes.filter_empty}
+      className={
+        selected ? classes.filter_selected : classes.status_filter_empty
+      }
     />
   );
 };

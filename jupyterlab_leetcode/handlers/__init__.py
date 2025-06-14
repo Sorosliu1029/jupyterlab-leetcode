@@ -2,10 +2,11 @@ from jupyter_server.utils import url_path_join
 
 from .base_handler import BaseHandler
 from .cookie_handler import GetCookieHandler
-from .leetcode_handler import (CreateNotebookHandler, LeetCodeProfileHandler,
-                               LeetCodeQuestionHandler,
+from .leetcode_handler import (CreateNotebookHandler, LeetCodeCompanyHandlar,
+                               LeetCodeProfileHandler, LeetCodeQuestionHandler,
                                LeetCodeStatisticsHandler,
                                LeetCodeSubmissionCalendarHandlar,
+                               LeetCodeTopicHandlar,
                                LeetCodeWebSocketSubmitHandler,
                                SubmitNotebookHandler)
 
@@ -22,6 +23,8 @@ def setup_handlers(web_app):
         SubmitNotebookHandler,
         LeetCodeWebSocketSubmitHandler,
         LeetCodeSubmissionCalendarHandlar,
+        LeetCodeTopicHandlar,
+        LeetCodeCompanyHandlar,
     ]
 
     web_app.add_handlers(

@@ -1,9 +1,11 @@
 import {
+  LeetCodeCompanyTag,
   LeetCodeProfile,
   LeetCodeQuestion,
   LeetCodeQuestionQuery,
   LeetCodeStatistics,
-  LeetCodeSubmissionCalendar
+  LeetCodeSubmissionCalendar,
+  LeetCodeTopicTag
 } from '../types/leetcode';
 import { requestAPI } from './handler';
 
@@ -45,4 +47,18 @@ export async function getSubmissionCalendar(username: string) {
   }>(`/leetcode/submission?username=${username}`).then(
     d => d.data.matchedUser.userCalendar
   );
+}
+
+export async function getAllTopics() {
+  return requestAPI<{
+    data: { questionTopicTags: { edges: { node: LeetCodeTopicTag }[] } };
+  }>('/leetcode/topics').then(d =>
+    d.data.questionTopicTags.edges.map(e => e.node)
+  );
+}
+
+export async function getAllCompanies() {
+  return requestAPI<{
+    data: { companyTags: LeetCodeCompanyTag[] };
+  }>('/leetcode/companies').then(d => d.data.companyTags);
 }

@@ -109,6 +109,7 @@ class LeetCodeProfileHandler(LeetCodeHandler):
                                     username
                                     realName
                                     avatar
+                                    isPremium
                                 }
                             }"""
             },
@@ -220,6 +221,49 @@ class LeetCodeSubmissionCalendarHandlar(LeetCodeHandler):
                                         }
                                     }""",
                 "variables": {"username": username},
+            },
+        )
+
+
+class LeetCodeTopicHandlar(LeetCodeHandler):
+    route = r"leetcode/topics"
+
+    @tornado.web.authenticated
+    async def get(self):
+        await self.graphql(
+            name="topic_tags",
+            query={
+                "query": """query questionTopicTags {
+                                    questionTopicTags {
+                                        edges {
+                                            node {
+                                                id
+                                                name
+                                                slug
+                                                translatedName
+                                                questionIds
+                                            }
+                                        }
+                                    }
+                                  }""",
+            },
+        )
+
+
+class LeetCodeCompanyHandlar(LeetCodeHandler):
+    route = r"leetcode/companies"
+
+    @tornado.web.authenticated
+    async def get(self):
+        await self.graphql(
+            name="question_tags",
+            query={
+                "query": """query CompanyTags {
+                                    companyTags {
+                                        name
+                                        slug
+                                    }
+                                }""",
             },
         )
 

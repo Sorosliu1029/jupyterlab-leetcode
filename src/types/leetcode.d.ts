@@ -3,6 +3,7 @@ export type LeetCodeProfile = {
   isSignedIn: boolean;
   realName: string;
   username: string;
+  isPremium: boolean;
 };
 
 export type LeetCodeQuestionStatistic = {
@@ -41,6 +42,11 @@ export type LeetCodeStatistics = {
 };
 
 export type LeetCodeTopicTag = {
+  name: string;
+  slug: string;
+};
+
+export type LeetCodeCompanyTag = {
   name: string;
   slug: string;
 };

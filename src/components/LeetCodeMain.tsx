@@ -71,7 +71,11 @@ const LeetCodeMain: React.FC<{ docManager: IDocumentManager }> = ({
           />
           <Actions paperProps={{ ...MainHeaderPaperProps, w: '5%' }} />
         </Group>
-        <QuestionTable openNotebook={openNoteBook} height={calcHeight()} />
+        <QuestionTable
+          openNotebook={openNoteBook}
+          height={calcHeight()}
+          isPremium={profile?.isPremium}
+        />
       </Stack>
     </Container>
   );

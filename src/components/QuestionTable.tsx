@@ -23,7 +23,8 @@ import QuestionCompanyFilter from './QuestionCompanyFilter';
 const QuestionTable: React.FC<{
   openNotebook: (p: string) => void;
   height: number | string;
-}> = ({ openNotebook, height }) => {
+  isPremium?: boolean;
+}> = ({ openNotebook, height, isPremium }) => {
   const limit = 100;
 
   const [fetching, setFetching] = useState(true);
@@ -113,6 +114,7 @@ const QuestionTable: React.FC<{
         />
         <QuestionCompanyFilter
           updateCompanies={cs => updateQuery({ ...query, companies: cs })}
+          isPremium={isPremium}
         />
       </Group>
       <ScrollArea

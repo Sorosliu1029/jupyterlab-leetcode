@@ -1,7 +1,7 @@
 import { Paper, PaperProps, Stack, Table, Tooltip } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import { getSubmissionCalendar } from '../services/leetcode';
-import classes from '../styles/SubmissionCalendar.module.css';
+import classes from '../styles/LeetCodeMain.module.css';
 import { useScrollIntoView } from '@mantine/hooks';
 
 const ADay = 24 * 60 * 60 * 1000; // milliseconds in a day

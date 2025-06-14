@@ -1,9 +1,0 @@
-.filter_selected input {
-  width: 0;
-  min-width: unset;
-}
-
-.filter_empty input {
-  width: 5em;
-  min-width: unset;
-}

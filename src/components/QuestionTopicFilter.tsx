@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
 import { IconCheck, IconTags } from '@tabler/icons-react';
-import classes from '../styles/Filter.module.css';
+import classes from '../styles/LeetCodeMain.module.css';
+import { getAllTopics } from '../services/leetcode';
+import { LeetCodeTopicTag } from '../types/leetcode';
 
 const CheckedIcon = <IconCheck size={12} stroke={1.5} />;
-
-// TODO: fill data
-const Data = ['array', 'hash-table'];
 
 const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
   option,
@@ -18,7 +17,7 @@ const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
     variant="light"
     tt="capitalize"
   >
-    {option.value}
+    {option.label}
   </Badge>
 );
 
@@ -26,11 +25,21 @@ const QuestionTopicFilter: React.FC<{
   updateTopics: (topics: string[]) => void;
 }> = ({ updateTopics }) => {
   const [selected, setSelected] = useState(false);
+  const [allTopics, setAllTopics] = useState<LeetCodeTopicTag[]>([]);
+
+  useEffect(() => {
+    getAllTopics().then(ts => setAllTopics(ts));
+  }, []);
+
+  const options = allTopics.map(t => ({
+    value: t.slug,
+    label: t.name
+  }));
 
   return (
     <MultiSelect
       tt="capitalize"
-      data={Data}
+      data={options}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
       placeholder="Topic"
@@ -43,7 +52,9 @@ const QuestionTopicFilter: React.FC<{
         setSelected(v.length > 0);
         updateTopics(v);
       }}
-      className={selected ? classes.filter_selected : classes.filter_empty}
+      className={
+        selected ? classes.filter_selected : classes.topic_filter_empty
+      }
     />
   );
 };

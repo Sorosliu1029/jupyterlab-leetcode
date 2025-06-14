@@ -19,8 +19,13 @@ export class JupyterMainWidget extends ReactWidget {
     this.id = 'JupyterlabLeetcodeWidget';
     this.addClass('jupyterlab-leetcode-widget');
     this.docManager = docManager;
-    // FIXME: fix mantine override body line-height
     this.theme = createTheme({});
+
+    // fix mantine override body line-height
+    const s = getComputedStyle(document.documentElement);
+    if (s.getPropertyValue('--mantine-line-height')) {
+      document.body.style.lineHeight = 'unset';
+    }
   }
 
   render(): JSX.Element {

@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Badge, MultiSelect, MultiSelectProps, Tooltip } from '@mantine/core';
 import { IconBuildings, IconCheck } from '@tabler/icons-react';
-import classes from '../styles/Filter.module.css';
+import classes from '../styles/LeetCodeMain.module.css';
+import { LeetCodeCompanyTag } from '../types/leetcode';
+import { getAllCompanies } from '../services/leetcode';
 
 const CheckedIcon = <IconCheck size={12} stroke={1.5} />;
 
-// TODO: fill data
-const Data = ['facebook', 'google'];
-
-// TODO: show 'wont work if not premium'
 const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
   option,
   checked
@@ -25,13 +23,24 @@ const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
 
 const QuestionCompanyFilter: React.FC<{
   updateCompanies: (companies: string[]) => void;
-}> = ({ updateCompanies }) => {
+  isPremium?: boolean;
+}> = ({ updateCompanies, isPremium }) => {
   const [selected, setSelected] = useState(false);
+  const [allCompanies, setAllCompanies] = useState<LeetCodeCompanyTag[]>([]);
 
-  return (
+  useEffect(() => {
+    getAllCompanies().then(cs => setAllCompanies(cs));
+  }, []);
+
+  const options = allCompanies.map(c => ({
+    value: c.slug,
+    label: c.name
+  }));
+  const disabled = isPremium === false;
+  const ms = (
     <MultiSelect
       tt="capitalize"
-      data={Data}
+      data={options}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
       placeholder="Company"
@@ -44,8 +53,19 @@ const QuestionCompanyFilter: React.FC<{
         setSelected(v.length > 0);
         updateCompanies(v);
       }}
-      className={selected ? classes.filter_selected : classes.filter_empty}
+      className={
+        selected ? classes.filter_selected : classes.company_filter_empty
+      }
+      disabled={disabled}
     />
+  );
+
+  return disabled ? (
+    <Tooltip label="Company filter is only available for LeetCode Premium users.">
+      {ms}
+    </Tooltip>
+  ) : (
+    ms
   );
 };
 

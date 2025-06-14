@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
 import { IconCheck, IconGauge } from '@tabler/icons-react';
 import { DifficultyColors } from './Statistics';
-import classes from '../styles/Filter.module.css';
+import classes from '../styles/LeetCodeMain.module.css';
 
 const CheckedIcon = <IconCheck size={12} stroke={1.5} />;
 
@@ -43,7 +43,9 @@ const QuestionDifficultyFilter: React.FC<{
         setSelected(v.length > 0);
         updateDifficulties(v.map(v => v.toUpperCase()));
       }}
-      className={selected ? classes.filter_selected : classes.filter_empty}
+      className={
+        selected ? classes.filter_selected : classes.difficulty_filter_empty
+      }
     />
   );
 };
