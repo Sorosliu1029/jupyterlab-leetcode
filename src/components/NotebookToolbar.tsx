@@ -159,7 +159,7 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
         setWsRetries(wsRetries + 1);
       } else {
         submitPromise?.reject({
-          error: 'WebSocket connection failed after 10 retries.'
+          error: '🔴 Error: WebSocket connection failed after 10 retries.'
         });
       }
     }
@@ -174,12 +174,11 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
     Notification.promise(submitPromise.promise, {
       pending: { message: '⏳ Pending...', options: { autoClose: false } },
       success: {
-        message: (result: any) =>
-          `${status2Emoji(result.status_msg)} Result: ${result.status_msg}`,
+        message: (result: any) => result.message,
         options: { autoClose: 3000 }
       },
       error: {
-        message: (result: any) => `🔴 Error: ${result.error}`,
+        message: (result: any) => result.error,
         options: { autoClose: 3000 }
       }
     });
@@ -190,7 +189,12 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
     if (result?.state !== 'SUCCESS') {
       return;
     }
-    submitPromise?.resolve({ status_msg: result.status_msg });
+    const msg = `${status2Emoji(result.status_msg)} Result: ${result.status_msg}`;
+    if (result.status_msg === 'Accepted') {
+      submitPromise?.resolve({ message: msg });
+    } else {
+      submitPromise?.reject({ error: msg });
+    }
     const resultCellModel = getResultCell();
     if (resultCellModel) {
       populateResultCell(resultCellModel, result);
