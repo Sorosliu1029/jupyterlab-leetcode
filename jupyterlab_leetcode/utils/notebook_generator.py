@@ -134,13 +134,13 @@ class NotebookGenerator:
 
         types = self.__extract_type(snippet)
         typing_import = f"from typing import {', '.join(set(types))}" if types else None
-        source = ["\n\n".join(filter(None, [typing_import, pre_solution.strip(" \n")]))]
+        source = "\n\n".join(filter(None, [typing_import, pre_solution.strip(" \n")]))
         if source:
             pre_code_cell = first(
                 self.template["cells"], lambda c: c["metadata"]["id"] == "pre_code"
             )
             if pre_code_cell:
-                pre_code_cell["source"] = source
+                pre_code_cell["source"] = [source]
             else:
                 code_cell_index = first(
                     enumerate(self.template["cells"]),
@@ -154,7 +154,7 @@ class NotebookGenerator:
                             "execution_count": None,
                             "metadata": {"id": "pre_code"},
                             "outputs": [],
-                            "source": source,
+                            "source": [source],
                         },
                     )
 
