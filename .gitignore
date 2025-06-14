@@ -1,5 +1,6 @@
 *.ipynb
 .ipynb_checkpoints
+*.mp4
 *.bundle.*
 lib/
 node_modules/

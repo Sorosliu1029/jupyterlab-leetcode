@@ -1,20 +1,12 @@
-# jupyterlab_leetcode
+## Integrate LeetCode into beloved Jupyter.
 
-⚠️  STILL UNDER ACTIVE (but not rapid) DEVELOPMENT
+https://github.com/user-attachments/assets/6b8aaf10-ff05-44b6-a6c9-ce0c6e357f2d
 
-[![Github Actions Status](https://github.com/Sorosliu1029/jupyterlab-leetcode/workflows/Build/badge.svg)](https://github.com/Sorosliu1029/jupyterlab-leetcode/actions/workflows/build.yml)
-
-Integrate LeetCode into beloved Jupyter.
-
-This extension is composed of a Python package named `jupyterlab_leetcode`
-for the server extension and a NPM package named `jupyterlab-leetcode`
-for the frontend extension.
-
-## Requirements
+#### Requirements
 
 - JupyterLab >= 4.0.0
 
-## Install
+#### Install
 
 To install the extension, execute:
 
@@ -22,7 +14,17 @@ To install the extension, execute:
 pip install jupyterlab_leetcode
 ```
 
-## Uninstall
+#### Get Started
+
+After choosing the browser, you will be prompted like:
+
+<img alt="password-prompt" src="https://raw.githubusercontent.com/Sorosliu1029/jupyterlab-leetcode/refs/heads/master/docs/statics/password-prompt.png" width="400" />
+
+This is because this plugin is based on [browser-cookie3](https://github.com/borisbabic/browser_cookie3), which needs permission to read cookie files.
+
+You can choose 'Always Allow'.
+
+#### Uninstall
 
 To remove the extension, execute:
 
@@ -30,7 +32,7 @@ To remove the extension, execute:
 pip uninstall jupyterlab_leetcode
 ```
 
-## Troubleshoot
+#### Troubleshoot
 
 If you are seeing the frontend extension, but it is not working, check
 that the server extension is enabled:
@@ -45,4 +47,3 @@ the frontend extension, check the frontend extension is installed:
 ```bash
 jupyter labextension list
 ```
-
