@@ -112,6 +112,7 @@ class NotebookGenerator:
 
     def __extract_type(self, code) -> list[str]:
         _, args = self.__parse_code(code)
+        # FIXME: args: `root1: Optional[TreeNode], root2: Optional[TreeNode]` will extract type `Optional, T`
         return self.typing_regex.findall(args)
 
     def __populate_code(self, q):
