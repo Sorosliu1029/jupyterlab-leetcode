@@ -186,6 +186,7 @@ class NotebookGenerator:
             return f"s.{func_name}({case.replace('\n', ', ')})"
 
         for i, case in enumerate(cases):
+            # TODO: replace `null` with `None`
             if i == 0:
                 run_cell["source"] = [f"s = Solution()\n{fill_case(case)}"]
             else:
