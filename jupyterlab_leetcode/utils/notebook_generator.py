@@ -1,7 +1,7 @@
+import ast
 import copy
 import json
 import os
-import re
 import sys
 import typing
 
@@ -21,15 +21,6 @@ class NotebookGenerator:
         )
         with open(template_path, "rt") as f:
             self.__template = json.load(f)
-
-        self.typing_regex = re.compile(
-            "|".join(
-                # '|' is matched by order
-                sorted(
-                    filter(lambda t: t[0].isupper(), dir(typing)), key=len, reverse=True
-                )
-            )
-        )
 
     def __populate_metadata(self, q):
         self.template["metadata"]["language_info"]["version"] = "{}.{}.{}".format(
@@ -111,9 +102,8 @@ class NotebookGenerator:
         test_cell["metadata"]["exampleTestcaseList"] = q["exampleTestcaseList"]
 
     def __extract_type(self, code) -> list[str]:
-        _, args = self.__parse_code(code)
-        # FIXME: args: `root1: Optional[TreeNode], root2: Optional[TreeNode]` will extract type `Optional, T`
-        return self.typing_regex.findall(args)
+        _, args_types = self.__parse_code(code)
+        return list(args_types.intersection((t for t in dir(typing) if t[0].isupper())))
 
     def __populate_code(self, q):
         code_cell = first(
@@ -126,11 +116,11 @@ class NotebookGenerator:
         if not code_snippet:
             return
 
-        snippet = code_snippet["code"]
+        snippet = code_snippet["code"] + "pass"
         pre_solution_index = snippet.find("class Solution:")
         pre_solution = snippet[:pre_solution_index]
         snippet = snippet[pre_solution_index:]
-        code_cell["source"] = [snippet + "pass"]
+        code_cell["source"] = snippet
         code_cell["metadata"]["isSolutionCode"] = True
 
         types = self.__extract_type(snippet)
@@ -161,11 +151,27 @@ class NotebookGenerator:
 
         return snippet
 
-    def __parse_code(self, code) -> tuple[str, str]:
-        match = re.search(r"class Solution:\s+def (.*?)\(self,(.*)", code)
-        if not match:
-            return ("", "")
-        return (match[1], match[2])
+    """
+    return (function_name, argument_types)
+    """
+
+    def __parse_code(self, code) -> tuple[str, typing.Set[str]]:
+        m = ast.parse(code)
+        func_name = ""
+        args_types = set()
+
+        for node in ast.walk(m):
+            if isinstance(node, ast.FunctionDef):
+                func_name = node.name
+                for arg in node.args.args:
+                    if arg.annotation:
+                        if isinstance(arg.annotation, ast.Subscript):
+                            args_types.add(arg.annotation.value.id)
+                            args_types.add(arg.annotation.slice.id)
+                        elif isinstance(arg.annotation, ast.Name):
+                            args_types.add(arg.annotation.id)
+
+        return func_name, args_types
 
     def __populate_run(self, q, snippet):
         run_cell_with_idx = first(
