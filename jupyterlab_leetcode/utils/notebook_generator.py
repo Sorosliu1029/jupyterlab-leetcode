@@ -151,14 +151,21 @@ class NotebookGenerator:
 
         return snippet
 
-    """
-    return (function_name, argument_types)
-    """
-
     def __parse_code(self, code) -> tuple[str, typing.Set[str]]:
+        """
+        return (function_name, argument_types)
+        """
         m = ast.parse(code)
         func_name = ""
         args_types = set()
+
+        def add_subscript_type(args_types, sub: ast.Subscript):
+            if isinstance(sub.value, ast.Name):
+                args_types.add(sub.value.id)
+            if isinstance(sub.slice, ast.Subscript):
+                add_subscript_type(args_types, sub.slice)
+            elif isinstance(sub.slice, ast.Name):
+                args_types.add(sub.slice.id)
 
         for node in ast.walk(m):
             if isinstance(node, ast.FunctionDef):
@@ -166,8 +173,7 @@ class NotebookGenerator:
                 for arg in node.args.args:
                     if arg.annotation:
                         if isinstance(arg.annotation, ast.Subscript):
-                            args_types.add(arg.annotation.value.id)
-                            args_types.add(arg.annotation.slice.id)
+                            add_subscript_type(args_types, arg.annotation)
                         elif isinstance(arg.annotation, ast.Name):
                             args_types.add(arg.annotation.id)
 
