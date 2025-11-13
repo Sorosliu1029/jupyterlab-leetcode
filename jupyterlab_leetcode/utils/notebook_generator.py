@@ -117,7 +117,7 @@ class NotebookGenerator:
             return
 
         snippet = code_snippet["code"] + "pass"
-        pre_solution_index = snippet.find("class Solution:")
+        pre_solution_index = max((0, snippet.find("class Solution:")))
         pre_solution = snippet[:pre_solution_index]
         snippet = snippet[pre_solution_index:]
         code_cell["source"] = snippet
@@ -155,9 +155,13 @@ class NotebookGenerator:
         """
         return (function_name, argument_types)
         """
-        m = ast.parse(code)
         func_name = ""
         args_types = set()
+
+        try:
+            m = ast.parse(code)
+        except SyntaxError:
+            return func_name, args_types
 
         def add_subscript_type(args_types, sub: ast.Subscript):
             if isinstance(sub.value, ast.Name):
