@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab-leetcode",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "Integrate LeetCode into beloved Jupyter.",
     "keywords": [
         "jupyter",

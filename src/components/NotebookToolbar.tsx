@@ -80,10 +80,14 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
 
   const getResultCell = () => {
     const cells = notebook.content.model?.cells ?? [];
-    let resultCellModel = Array.from(cells).find(
+    const resultCellModelIdx = Array.from(cells).findIndex(
       c => c.metadata['id'] === 'result'
     );
-    if (!resultCellModel) {
+    let resultCellModel: ICellModel | null = null;
+    if (resultCellModelIdx >= 0) {
+      resultCellModel = Array.from(cells)[resultCellModelIdx];
+      notebook.content.activeCellIndex = resultCellModelIdx;
+    } else {
       const activeCellIdx = cells.length ? cells.length - 1 : 0;
       notebook.content.activeCellIndex = activeCellIdx;
       NotebookActions.insertBelow(notebook.content);
