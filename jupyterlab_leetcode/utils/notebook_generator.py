@@ -180,6 +180,8 @@ class NotebookGenerator:
                             add_subscript_type(args_types, arg.annotation)
                         elif isinstance(arg.annotation, ast.Name):
                             args_types.add(arg.annotation.id)
+                if isinstance(node.returns, ast.Subscript):
+                    add_subscript_type(args_types, node.returns)
 
         return func_name, args_types
 
