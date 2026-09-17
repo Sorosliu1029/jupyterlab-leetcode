@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
 import { IconCheck, IconCheckbox } from '@tabler/icons-react';
 import { StatusColors } from './QuestionItem';
@@ -27,9 +27,8 @@ const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
 
 const QuestionStatusFilter: React.FC<{
   updateStatuses: (statues: string[]) => void;
-}> = ({ updateStatuses }) => {
-  const [selected, setSelected] = useState(false);
-
+  statuses: string[];
+}> = ({ updateStatuses, statuses }) => {
   return (
     <MultiSelect
       tt="capitalize"
@@ -42,12 +41,14 @@ const QuestionStatusFilter: React.FC<{
       leftSectionPointerEvents="none"
       clearable
       searchable
+      value={statuses}
       onChange={v => {
-        setSelected(v.length > 0);
         updateStatuses(v);
       }}
       className={
-        selected ? classes.filter_selected : classes.status_filter_empty
+        statuses.length > 0
+          ? classes.filter_selected
+          : classes.status_filter_empty
       }
     />
   );
