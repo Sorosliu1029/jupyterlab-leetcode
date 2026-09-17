@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
 import { IconCheck, IconGauge } from '@tabler/icons-react';
 import { DifficultyColors } from './Statistics';
@@ -24,9 +24,8 @@ const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
 
 const QuestionDifficultyFilter: React.FC<{
   updateDifficulties: (ds: string[]) => void;
-}> = ({ updateDifficulties }) => {
-  const [selected, setSelected] = useState(false);
-
+  difficulties: string[];
+}> = ({ updateDifficulties, difficulties }) => {
   return (
     <MultiSelect
       tt="capitalize"
@@ -39,12 +38,14 @@ const QuestionDifficultyFilter: React.FC<{
       leftSectionPointerEvents="none"
       clearable
       searchable
+      value={difficulties.map(difficulty => difficulty.toLowerCase())}
       onChange={v => {
-        setSelected(v.length > 0);
         updateDifficulties(v.map(v => v.toUpperCase()));
       }}
       className={
-        selected ? classes.filter_selected : classes.difficulty_filter_empty
+        difficulties.length > 0
+          ? classes.filter_selected
+          : classes.difficulty_filter_empty
       }
     />
   );

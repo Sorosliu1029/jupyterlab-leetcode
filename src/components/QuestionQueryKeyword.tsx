@@ -5,7 +5,8 @@ import { useDebouncedCallback } from '@mantine/hooks';
 
 const QuestionQueryBar: React.FC<{
   updateKeyword: (keyword: string) => void;
-}> = ({ updateKeyword }) => {
+  keyword: string;
+}> = ({ updateKeyword, keyword }) => {
   const debounced = useDebouncedCallback(updateKeyword, 200);
 
   return (
@@ -13,6 +14,7 @@ const QuestionQueryBar: React.FC<{
       <TextInput
         placeholder="Search questions"
         leftSection=<IconSearch size={16} stroke={1.5} />
+        defaultValue={keyword}
         onChange={e => debounced(e.target.value)}
       />
     </Group>

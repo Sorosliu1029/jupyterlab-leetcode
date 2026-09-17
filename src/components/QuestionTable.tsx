@@ -19,6 +19,10 @@ import QuestionDifficultyFilter from './QuestionDifficultyFilter';
 import QuestionStatusFilter from './QuestionStatusFilter';
 import QuestionTopicFilter from './QuestionTopicFilter';
 import QuestionCompanyFilter from './QuestionCompanyFilter';
+import {
+  loadQuestionQuery,
+  saveQuestionQuery
+} from '../services/questionQuery';
 
 const QuestionTable: React.FC<{
   openNotebook: (p: string) => void;
@@ -33,13 +37,7 @@ const QuestionTable: React.FC<{
   const [hasMore, setHasMore] = useState(true);
   const [fetchingMore, setFetchingMore] = useState(false);
 
-  const [query, setQuery] = useState<LeetCodeQuestionQuery>({
-    keyword: '',
-    difficulties: [],
-    statuses: [],
-    topics: [],
-    companies: []
-  });
+  const [query, setQuery] = useState<LeetCodeQuestionQuery>(loadQuestionQuery);
 
   const updateQuery = (newQuery: LeetCodeQuestionQuery) => {
     setQuery(newQuery);
@@ -49,6 +47,7 @@ const QuestionTable: React.FC<{
   };
 
   useEffect(() => {
+    saveQuestionQuery(query);
     listQuestions(query, skip, limit)
       .then(({ problemsetQuestionListV2 }) => {
         const qs = fetching ? [] : questions; // fix datarace to ensure distinct key
@@ -101,18 +100,23 @@ const QuestionTable: React.FC<{
     <Stack h={height} pb="lg">
       <Group>
         <QuestionQueryKeyword
+          keyword={query.keyword}
           updateKeyword={k => updateQuery({ ...query, keyword: k })}
         />
         <QuestionStatusFilter
+          statuses={query.statuses}
           updateStatuses={ss => updateQuery({ ...query, statuses: ss })}
         />
         <QuestionDifficultyFilter
+          difficulties={query.difficulties}
           updateDifficulties={ds => updateQuery({ ...query, difficulties: ds })}
         />
         <QuestionTopicFilter
+          topics={query.topics}
           updateTopics={ts => updateQuery({ ...query, topics: ts })}
         />
         <QuestionCompanyFilter
+          companies={query.companies}
           updateCompanies={cs => updateQuery({ ...query, companies: cs })}
           isPremium={isPremium}
         />

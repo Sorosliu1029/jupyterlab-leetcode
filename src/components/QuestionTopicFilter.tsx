@@ -23,8 +23,8 @@ const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
 
 const QuestionTopicFilter: React.FC<{
   updateTopics: (topics: string[]) => void;
-}> = ({ updateTopics }) => {
-  const [selected, setSelected] = useState(false);
+  topics: string[];
+}> = ({ updateTopics, topics }) => {
   const [allTopics, setAllTopics] = useState<LeetCodeTopicTag[]>([]);
 
   useEffect(() => {
@@ -48,12 +48,12 @@ const QuestionTopicFilter: React.FC<{
       leftSectionPointerEvents="none"
       clearable
       searchable
+      value={topics}
       onChange={v => {
-        setSelected(v.length > 0);
         updateTopics(v);
       }}
       className={
-        selected ? classes.filter_selected : classes.topic_filter_empty
+        topics.length > 0 ? classes.filter_selected : classes.topic_filter_empty
       }
     />
   );

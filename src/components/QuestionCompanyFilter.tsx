@@ -24,8 +24,8 @@ const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({
 const QuestionCompanyFilter: React.FC<{
   updateCompanies: (companies: string[]) => void;
   isPremium?: boolean;
-}> = ({ updateCompanies, isPremium }) => {
-  const [selected, setSelected] = useState(false);
+  companies: string[];
+}> = ({ updateCompanies, isPremium, companies }) => {
   const [allCompanies, setAllCompanies] = useState<LeetCodeCompanyTag[]>([]);
 
   useEffect(() => {
@@ -49,12 +49,14 @@ const QuestionCompanyFilter: React.FC<{
       leftSectionPointerEvents="none"
       clearable
       searchable
+      value={companies}
       onChange={v => {
-        setSelected(v.length > 0);
         updateCompanies(v);
       }}
       className={
-        selected ? classes.filter_selected : classes.company_filter_empty
+        companies.length > 0
+          ? classes.filter_selected
+          : classes.company_filter_empty
       }
       disabled={disabled}
     />
