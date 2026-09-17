@@ -103,7 +103,7 @@
             },
             "outputs": [],
             "source": [
-                "Solution().func()"
+                "s = Solution()"
             ]
         }
     ]

@@ -203,20 +203,17 @@ class NotebookGenerator:
         def fill_case(case):
             return f"s.{func_name}({case.replace('\n', ', ')})"
 
-        for i, case in enumerate(cases):
+        for i, case in enumerate(cases, start=1):
             case = (
                 case.replace("null", "None")
                 .replace("true", "True")
                 .replace("false", "False")
             )
 
-            if i == 0:
-                run_cell["source"] = [f"s = Solution()\n{fill_case(case)}"]
-            else:
-                copied = copy.deepcopy(run_cell)
-                copied["metadata"]["id"] = f"run_{i}"
-                copied["source"] = [fill_case(case)]
-                self.template["cells"].insert(idx + i, copied)
+            copied = copy.deepcopy(run_cell)
+            copied["metadata"]["id"] = f"run_{i}"
+            copied["source"] = [fill_case(case)]
+            self.template["cells"].insert(idx + i, copied)
 
     def __dump(self, q):
         qid = q["questionFrontendId"]
