@@ -6,8 +6,8 @@ from typing import Any, cast, overload
 
 import tornado
 from tornado.gen import multi
-from tornado.httpclient import HTTPResponse
-from tornado.httputil import HTTPServerRequest
+from tornado.httpclient import HTTPClientError, HTTPResponse
+from tornado.httputil import HTTPHeaders, HTTPServerRequest
 from tornado.websocket import WebSocketHandler
 
 from ..utils.notebook_generator import NotebookGenerator
@@ -496,19 +496,66 @@ class SubmitNotebookHandler(LeetCodeHandler):
             self.finish({"message": "No solution code found in notebook"})
             return
 
-        resp = await request(
-            f"{LEETCODE_URL}{submit_url}",
-            method="POST",
-            headers=self.settings.get("leetcode_headers", {}),
-            body={
-                "question_id": str(question_submit_id),
-                "data_input": sample_testcase,
-                "lang": "python3",
-                "typed_code": solution_code,
-                "test_mode": False,
-                "judge_type": "large",
-            },
-        )
+        # ``leetcode_headers`` is shared by all handlers and may have been created
+        # hours ago.  LeetCode reports a stale/invalid session as status 499, so
+        # re-read the browser cookie immediately before the authenticated submit.
+        browser = self.get_cookie("leetcode_browser")
+        try:
+            cookie = get_leetcode_cookie(
+                browser or "",
+                self.settings,
+                self.request.headers.get("User-Agent", ""),
+            )
+        except Exception as e:
+            self.log.warning("Could not refresh LeetCode cookies: %s", e)
+            self.set_status(401)
+            self.finish(
+                {"message": "Could not refresh LeetCode login. Please sign in again."}
+            )
+            return
+
+        if not cookie["checked"]:
+            self.set_status(401)
+            self.finish(
+                {"message": "LeetCode login has expired. Please sign in again."}
+            )
+            return
+
+        headers = HTTPHeaders(self.settings.get("leetcode_headers", {}))
+        # Use the problem page as the referrer, as LeetCode expects for submit
+        # requests, rather than the generic referrer used by GraphQL requests.
+        headers["Referer"] = f"{LEETCODE_URL}{submit_url.removesuffix('submit/')}"
+
+        try:
+            resp = await request(
+                f"{LEETCODE_URL}{submit_url}",
+                method="POST",
+                headers=headers,
+                body={
+                    "question_id": str(question_submit_id),
+                    "data_input": sample_testcase,
+                    "lang": "python3",
+                    "typed_code": solution_code,
+                    "test_mode": False,
+                    "judge_type": "large",
+                },
+            )
+        except HTTPClientError as e:
+            self.log.warning("LeetCode submission failed with HTTP %s", e.code)
+            if e.code in (401, 403, 499):
+                self.set_status(401)
+                self.finish(
+                    {
+                        "message": (
+                            "LeetCode rejected the login session. "
+                            "Please sign in again and retry."
+                        )
+                    }
+                )
+            else:
+                self.set_status(502)
+                self.finish({"message": "LeetCode submission request failed"})
+            return
 
         self.finish(resp.body)
 
