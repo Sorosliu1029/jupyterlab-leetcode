@@ -12,12 +12,19 @@ on:
         description: "Comma separated list of steps to skip"
         required: false
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish_release:
     runs-on: ubuntu-latest
     environment: release
-    permissions:
-      id-token: write
+    timeout-minutes: 30
     steps:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 

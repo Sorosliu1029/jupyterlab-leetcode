@@ -23,11 +23,18 @@ on:
         description: "Use PRs with activity since the last stable git tag"
         required: false
         type: boolean
+
+concurrency:
+  group: prep-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
 jobs:
   prep_release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 30
     steps:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
