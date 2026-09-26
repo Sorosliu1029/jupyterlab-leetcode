@@ -59,8 +59,8 @@ def get_leetcode_cookie(browser: str, settings: dict[str, Any], ua: str):
     except Exception as e:
         raise Exception(f"An error occurred: {str(e)}")
 
-    cookie_session = first(cj, lambda c: c.name == "LEETCODE_SESSION")
-    cookie_csrf = first(cj, lambda c: c.name == "csrftoken")
+    cookie_session = first(cj, lambda c: c.name == "LEETCODE_SESSION" and c.domain in {"leetcode.com", ".leetcode.com"})
+    cookie_csrf = first(cj, lambda c: c.name == "csrftoken" and c.domain in {"leetcode.com", ".leetcode.com"})
     exist = bool(cookie_session and cookie_csrf)
     expired = exist and (
         cast(Cookie, cookie_session).is_expired()
