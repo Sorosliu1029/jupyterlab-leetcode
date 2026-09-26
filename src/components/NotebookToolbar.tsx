@@ -122,7 +122,7 @@ const LeetCodeNotebookToolbar: React.FC<{ notebook: NotebookPanel }> = ({
       case 'Internal Error': {
         source =
           formatMarkdown(`${status2Emoji(result.status_msg)} Result: ${result.status_msg}
-📥 Input: \`${result.input_formatted}\`
+📥 Input: \`${result.input_formatted ?? result.last_testcase}\`
 📤 Output: \`${result.code_output}\`
 ✅ Expected: \`${result.expected_output}\`
 💯 Passed Test Case: ${result.total_correct} / ${result.total_testcases}`);
