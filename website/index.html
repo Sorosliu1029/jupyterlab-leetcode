@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>jupyterlab-leetcode</title>
+<meta name="description" content="A JupyterLab extension that turns LeetCode questions into notebooks. Browse, solve, test and submit without leaving Jupyter.">
+<meta property="og:title" content="jupyterlab-leetcode">
+<meta property="og:description" content="Browse LeetCode, solve each question in its own notebook, and submit from the toolbar.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sorosliu1029.github.io/jupyterlab-leetcode/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f37726'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' text-anchor='middle' fill='white'%3E[ ]%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #e9edf2;
+    --sheet: #ffffff;
+    --ink: #17202b;
+    --muted: #5b6776;
+    --rule: #d5dbe3;
+    --cell: #f5f7fa;
+    --prompt: #f37726;
+    --prompt-out: #b4501a;
+    --select: #2f7fd1;
+    --easy: #00a38f;
+    --medium: #d99a00;
+    --hard: #e3284b;
+    --code-kw: #8a3fb8;
+    --code-fn: #1f62b0;
+    --code-str: #a4361b;
+    --code-num: #0b7a5a;
+    --code-com: #7b8794;
+    --sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --gutter: 5.5rem;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #10151c;
+      --sheet: #171e27;
+      --ink: #e4e9ef;
+      --muted: #97a3b2;
+      --rule: #2b3542;
+      --cell: #1e2732;
+      --prompt: #ff8a3d;
+      --prompt-out: #f0a676;
+      --select: #5ba3ee;
+      --easy: #2fd0b6;
+      --medium: #ffc233;
+      --hard: #ff5c7a;
+      --code-kw: #d19af5;
+      --code-fn: #7fb6ff;
+      --code-str: #ff9e7a;
+      --code-num: #5fdcb0;
+      --code-com: #7d8a99;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #10151c;
+    --sheet: #171e27;
+    --ink: #e4e9ef;
+    --muted: #97a3b2;
+    --rule: #2b3542;
+    --cell: #1e2732;
+    --prompt: #ff8a3d;
+    --prompt-out: #f0a676;
+    --select: #5ba3ee;
+    --easy: #2fd0b6;
+    --medium: #ffc233;
+    --hard: #ff5c7a;
+    --code-kw: #d19af5;
+    --code-fn: #7fb6ff;
+    --code-str: #ff9e7a;
+    --code-num: #5fdcb0;
+    --code-com: #7d8a99;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    padding-inline: 16px;
+  }
+  a { color: var(--select); text-underline-offset: 0.18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--select); outline-offset: 3px; border-radius: 3px; }
+  code, pre, kbd { font-family: var(--mono); }
+  img { max-width: 100%; }
+
+  /* Top bar: a JupyterLab-ish menu strip */
+  .menubar {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding-block: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.9375rem;
+  }
+  .wordmark {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: var(--mono); font-weight: 700; color: var(--ink); text-decoration: none;
+  }
+  .wordmark svg { flex: none; }
+  .menubar nav { display: flex; gap: 1.25rem; margin-left: auto; flex-wrap: wrap; }
+  .menubar nav a { color: var(--muted); text-decoration: none; }
+  .menubar nav a:hover { color: var(--ink); }
+
+  /* The sheet: the whole page is one notebook */
+  .sheet {
+    max-width: 68rem;
+    margin: 0 auto 4rem;
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding-block: 2.5rem 3rem;
+  }
+  .cell {
+    display: grid;
+    grid-template-columns: var(--gutter) minmax(0, 1fr);
+    padding-right: clamp(1rem, 4vw, 3.5rem);
+    position: relative;
+  }
+  .cell + .cell { margin-top: 1.25rem; }
+  .cell.section { margin-top: 5rem; }
+  .prompt {
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    color: var(--prompt);
+    text-align: right;
+    padding: 0.55rem 0.9rem 0 0;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .prompt.out { color: var(--prompt-out); }
+  .cell.active::before {
+    content: "";
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--select); border-radius: 0 2px 2px 0;
+  }
+  .body { min-width: 0; }
+
+  /* Markdown cells */
+  h1, h2, h3 { font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; margin: 0; }
+  h1 {
+    font-size: clamp(2.6rem, 7vw, 5.25rem);
+    max-width: 14ch;
+    letter-spacing: -0.035em;
+  }
+  h1 .hash, h2 .hash { color: var(--rule); font-family: var(--mono); font-weight: 400; margin-right: 0.3em; }
+  h2 { font-size: clamp(1.75rem, 3.6vw, 2.5rem); max-width: 22ch; }
+  h3 { font-size: 1.125rem; letter-spacing: -0.01em; }
+  .lede { font-size: 1.25rem; color: var(--muted); max-width: 36rem; margin: 1.25rem 0 0; }
+  .prose { max-width: 38rem; }
+  .prose p { margin: 1rem 0 0; }
+  .muted { color: var(--muted); }
+
+  /* Code cells */
+  .input {
+    background: var(--cell);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    padding: 0.55rem 0.85rem;
+    overflow-x: auto;
+    position: relative;
+  }
+  .input pre { margin: 0; }
+  .output { font-family: var(--mono); font-size: 0.875rem; padding: 0.55rem 0.85rem; overflow-x: auto; }
+  .output pre { margin: 0; }
+  .kw { color: var(--code-kw); }
+  .fn { color: var(--code-fn); }
+  .str { color: var(--code-str); }
+  .num { color: var(--code-num); }
+  .com { color: var(--code-com); font-style: italic; }
+
+  .install { display: flex; align-items: center; gap: 1rem; font-size: 1rem; padding-block: 0.85rem; }
+  .install pre { flex: 1; overflow-x: auto; }
+  .copy {
+    flex: none;
+    font: 500 0.8125rem var(--sans);
+    color: var(--ink);
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+  }
+  .copy:hover { border-color: var(--muted); }
+
+  .hero-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 1.25rem; font-size: 0.9375rem; }
+
+  /* Demo notebook (hero) */
+  .demo {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--sheet);
+    margin-top: 0.5rem;
+  }
+  .demo-tab {
+    display: flex; align-items: center; gap: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    background: var(--cell);
+    font-size: 0.8125rem;
+    padding-right: 0.5rem;
+  }
+  .demo-tab .file {
+    font-family: var(--mono);
+    background: var(--sheet);
+    border-right: 1px solid var(--rule);
+    border-top: 2px solid var(--prompt);
+    padding: 0.5rem 0.9rem;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .demo-toolbar {
+    display: flex; align-items: center; gap: 0.25rem;
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.8125rem; color: var(--muted);
+  }
+  .tool {
+    width: 1.75rem; height: 1.75rem; display: grid; place-items: center;
+    border-radius: 3px; color: var(--muted);
+  }
+  .submit {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font: 700 0.875rem var(--sans);
+    color: #fff;
+    background: var(--prompt);
+    border: 0; border-radius: 4px;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+  }
+  .submit:hover { filter: brightness(1.07); }
+  .submit:disabled { cursor: progress; opacity: 0.8; }
+  .submit svg { flex: none; }
+  .demo-body { padding: 1rem 0 1.25rem; --gutter: 4.25rem; }
+  .demo-body .cell { padding-right: 1rem; }
+  .demo-body .cell + .cell { margin-top: 0.6rem; }
+  .demo-body .prompt { font-size: 0.75rem; }
+  .demo-body .input, .demo-body .output { font-size: 0.8125rem; }
+  .q-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.015em; }
+  .q-text { margin: 0.35rem 0 0; font-size: 0.9375rem; max-width: 44rem; }
+  .q-text code { font-size: 0.85em; background: var(--cell); padding: 0.05em 0.3em; border-radius: 3px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.5rem; font-size: 0.8125rem; color: var(--muted); }
+  .diff { font-weight: 700; }
+  .diff.easy { color: var(--easy); }
+  .diff.medium { color: var(--medium); }
+  .diff.hard { color: var(--hard); }
+  .result-md { font-size: 0.9375rem; line-height: 1.7; padding: 0.3rem 0 0; }
+  .result-md strong { color: var(--easy); }
+  .result-cell[hidden] { display: none !important; }
+  .result-cell.reveal { animation: reveal 420ms cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes reveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .result-cell.reveal { animation: none; } }
+  .status { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); padding: 0.35rem 0.85rem 0; }
+
+  /* Browsers */
+  .browsers {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin: 1.5rem 0 0; padding: 0; list-style: none;
+  }
+  .browsers li {
+    font-size: 0.9375rem; font-weight: 500;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--rule); border-radius: 999px;
+  }
+  .browsers li.no { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--muted); }
+
+  /* Question browser mock */
+  .qtable {
+    margin-top: 1.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    background: var(--cell);
+  }
+  .filters .search {
+    flex: 1 1 12rem;
+    font-size: 0.875rem; color: var(--muted);
+    border: 1px solid var(--rule); background: var(--sheet); border-radius: 4px;
+    padding: 0.35rem 0.6rem;
+  }
+  .filters .select {
+    font-size: 0.875rem;
+    border: 1px solid var(--rule); background: var(--sheet); border-radius: 4px;
+    padding: 0.35rem 0.6rem;
+    display: inline-flex; gap: 0.4rem; align-items: center;
+  }
+  .filters .select::after { content: "▾"; color: var(--muted); font-size: 0.75rem; }
+  .qtable-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; min-width: 34rem; }
+  th { text-align: left; font-weight: 500; color: var(--muted); font-size: 0.8125rem; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--rule); }
+  td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  td.num-col { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); width: 3.5rem; }
+  td.rate { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  td.done { color: var(--easy); width: 1.5rem; }
+  .open-btn {
+    font: 500 0.8125rem var(--sans);
+    color: var(--prompt); border: 1px solid currentColor; border-radius: 4px; padding: 0.15rem 0.55rem;
+    white-space: nowrap;
+  }
+  .topic { font-size: 0.75rem; color: var(--muted); }
+
+  /* Profile + heatmap */
+  .profile {
+    margin-top: 2.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+  }
+  .solved { margin: 0; display: grid; gap: 0.6rem; }
+  .solved div { display: grid; grid-template-columns: 4.5rem 1fr auto; align-items: center; gap: 0.75rem; font-size: 0.875rem; }
+  .solved dt { font-weight: 700; }
+  .solved dd { margin: 0; font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  .bar { height: 6px; border-radius: 3px; background: var(--cell); overflow: hidden; }
+  .bar span { display: block; height: 100%; border-radius: 3px; }
+  .heat { overflow-x: auto; }
+  .heat svg { display: block; }
+  .heat-caption { font-size: 0.8125rem; color: var(--muted); margin-top: 0.5rem; }
+
+  /* Notebook anatomy */
+  .anatomy {
+    margin-top: 1.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: 2rem;
+  }
+  .tree {
+    font-family: var(--mono); font-size: 0.8125rem; line-height: 1.85;
+    background: var(--cell); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 0.75rem 0.9rem; margin: 0; overflow-x: auto;
+  }
+  .tree .dir { color: var(--muted); }
+  .tree .here { color: var(--prompt); font-weight: 700; }
+  .parts { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
+  .parts li {
+    display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 1rem;
+    padding: 0.7rem 0; border-top: 1px solid var(--rule);
+    font-size: 0.9375rem;
+  }
+  .parts li:first-child { border-top: 0; padding-top: 0; }
+  .parts code { font-size: 0.8125rem; color: var(--prompt); }
+
+  /* Result list */
+  .verdicts { margin: 1.5rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.45rem; font-size: 0.9375rem; }
+  .verdicts li { display: flex; gap: 0.75rem; align-items: baseline; }
+  .verdicts .e { width: 1.5rem; flex: none; text-align: center; }
+
+  /* FAQ */
+  details { border-top: 1px solid var(--rule); padding: 0.9rem 0; max-width: 44rem; }
+  details:last-of-type { border-bottom: 1px solid var(--rule); }
+  summary { cursor: pointer; font-weight: 700; list-style-position: outside; }
+  details p, details pre { margin: 0.6rem 0 0; }
+  details pre { font-size: 0.875rem; background: var(--cell); border: 1px solid var(--rule); border-radius: 4px; padding: 0.5rem 0.75rem; overflow-x: auto; }
+  .faq { margin-top: 1.5rem; }
+
+  .footer {
+    max-width: 68rem; margin: 0 auto; padding-block: 0 3rem;
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+    font-size: 0.875rem; color: var(--muted);
+  }
+  .footer a { color: var(--muted); }
+  .footer span:first-child { margin-right: auto; }
+
+  @media (max-width: 760px) {
+    :root { --gutter: 0rem; }
+    .sheet { border-radius: 8px; padding-block: 1.5rem 2rem; }
+    .cell { grid-template-columns: minmax(0, 1fr); padding-inline: 1rem; }
+    .prompt { text-align: left; padding: 0 0 0.25rem; }
+    .cell.active::before { width: 3px; }
+    .demo-body { --gutter: 0rem; }
+    .demo-body .cell { padding-inline: 0.75rem; }
+    .profile, .anatomy { grid-template-columns: minmax(0, 1fr); }
+    .parts li { grid-template-columns: minmax(0, 1fr); gap: 0.15rem; }
+    .cell.section { margin-top: 3.5rem; }
+    .menubar nav { margin-left: 0; }
+    .install { font-size: 0.875rem; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="menubar">
+  <a class="wordmark" href="#top" aria-label="jupyterlab-leetcode home">
+    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#f37726"/><text x="16" y="21.5" font-family="JetBrains Mono, monospace" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">[ ]</text></svg>
+    jupyterlab-leetcode
+  </a>
+  <nav aria-label="Sections">
+    <a href="#install">Install</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">Troubleshooting</a>
+    <a href="https://github.com/Sorosliu1029/jupyterlab-leetcode">GitHub</a>
+    <a href="https://pypi.org/project/jupyterlab-leetcode/">PyPI</a>
+  </nav>
+</header>
+
+<main class="sheet" id="top">
+
+  <!-- Hero: markdown cell -->
+  <section class="cell">
+    <div class="prompt" aria-hidden="true"></div>
+    <div class="body">
+      <h1><span class="hash" aria-hidden="true">#</span>LeetCode, solved in a notebook.</h1>
+      <p class="lede">A JupyterLab extension that turns any LeetCode question into a notebook. Write the solution, run the examples, and submit from the toolbar.</p>
+    </div>
+  </section>
+
+  <!-- Install: code cell -->
+  <section class="cell active" id="install" aria-label="Install">
+    <div class="prompt" aria-hidden="true">In [1]:</div>
+    <div class="body">
+      <div class="input install">
+        <pre><code id="install-cmd">pip install jupyterlab-leetcode</code></pre>
+        <button class="copy" type="button" data-copy="install-cmd">Copy</button>
+      </div>
+      <div class="hero-links">
+        <span class="muted">Needs JupyterLab 4 and Python 3.12+</span>
+        <a href="https://github.com/Sorosliu1029/jupyterlab-leetcode#readme">Watch the demo video</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo notebook: output of the install cell -->
+  <section class="cell" aria-label="Interactive example notebook">
+    <div class="prompt out" aria-hidden="true">Out[1]:</div>
+    <div class="body">
+      <div class="demo">
+        <div class="demo-tab">
+          <span class="file">1.two-sum.ipynb</span>
+        </div>
+        <div class="demo-toolbar">
+          <span class="tool" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3"/></svg></span>
+          <span class="tool" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span class="tool" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg></span>
+          <button class="submit" type="button" id="submit">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            <span>Submit to LeetCode</span>
+          </button>
+        </div>
+        <div class="demo-body">
+          <div class="cell">
+            <div class="prompt" aria-hidden="true"></div>
+            <div class="body">
+              <div class="q-title">1. Two Sum</div>
+              <p class="q-text">Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to <code>target</code>.</p>
+              <div class="tags"><span class="diff easy">Easy</span><span>Array</span><span>Hash Table</span></div>
+            </div>
+          </div>
+          <div class="cell">
+            <div class="prompt" aria-hidden="true">[1]:</div>
+            <div class="body"><div class="input"><pre><code><span class="kw">from</span> typing <span class="kw">import</span> List</code></pre></div></div>
+          </div>
+          <div class="cell active">
+            <div class="prompt" aria-hidden="true">[2]:</div>
+            <div class="body"><div class="input"><pre><code><span class="kw">class</span> <span class="fn">Solution</span>:
+    <span class="kw">def</span> <span class="fn">twoSum</span>(self, nums: List[int], target: int) -&gt; List[int]:
+        seen = {}
+        <span class="kw">for</span> i, n <span class="kw">in</span> enumerate(nums):
+            <span class="kw">if</span> target - n <span class="kw">in</span> seen:
+                <span class="kw">return</span> [seen[target - n], i]
+            seen[n] = i</code></pre></div></div>
+          </div>
+          <div class="cell">
+            <div class="prompt" aria-hidden="true">[3]:</div>
+            <div class="body"><div class="input"><pre><code>s = Solution()
+s.twoSum(nums=[<span class="num">2</span>, <span class="num">7</span>, <span class="num">11</span>, <span class="num">15</span>], target=<span class="num">9</span>)</code></pre></div></div>
+          </div>
+          <div class="cell">
+            <div class="prompt out" aria-hidden="true">[3]:</div>
+            <div class="body"><div class="output"><pre>[0, 1]</pre></div></div>
+          </div>
+          <div class="cell" aria-live="polite">
+            <div class="prompt" aria-hidden="true"></div>
+            <div class="body">
+              <div class="status" id="status">Press Submit to see what lands in the notebook.</div>
+            </div>
+          </div>
+          <div class="cell result-cell" id="result" hidden>
+            <div class="prompt" aria-hidden="true"></div>
+            <div class="body">
+              <div class="result-md">
+                😃 Result: <strong>Accepted</strong><br>
+                🚀 Runtime: 0 ms, Memory: 18.6 MB<br>
+                🉑 Runtime Percentile: better than 100.00%, Memory Percentile: better than 61.42%<br>
+                📆 Finished At: <span id="finished"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="cell section" id="how">
+    <div class="prompt" aria-hidden="true"></div>
+    <div class="body prose">
+      <h2><span class="hash" aria-hidden="true">##</span>No login screen. Use the browser you already have.</h2>
+      <p>Open the LeetCode launcher in JupyterLab and pick the browser where you're already signed in to leetcode.com. The extension reads your LeetCode session cookie from that browser. It never sees or stores your password.</p>
+      <p class="muted">On macOS the system may ask for your keychain password the first time. This lets the extension read the browser's cookie store. You can choose "Always Allow".</p>
+    </div>
+  </section>
+
+  <section class="cell">
+    <div class="prompt" aria-hidden="true">In [2]:</div>
+    <div class="body">
+      <ul class="browsers" aria-label="Supported browsers">
+        <li>Chrome</li><li>Firefox</li><li>Edge</li><li>Arc</li><li>Brave</li><li>Opera</li><li>Opera GX</li><li>Vivaldi</li><li>Chromium</li><li>LibreWolf</li>
+        <li class="no" title="Safari does not allow reading its cookies">Safari</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cell section">
+    <div class="prompt" aria-hidden="true"></div>
+    <div class="body prose">
+      <h2><span class="hash" aria-hidden="true">##</span>Find the next question without switching tabs.</h2>
+      <p>Search by keyword, then filter by difficulty, status, topic, or company. Company filters need LeetCode Premium. Your profile, solved counts, and submission heatmap are on the same page.</p>
+    </div>
+  </section>
+
+  <section class="cell">
+    <div class="prompt" aria-hidden="true">In [3]:</div>
+    <div class="body">
+      <div class="qtable">
+        <div class="filters" aria-hidden="true">
+          <span class="search">Search questions</span>
+          <span class="select">Difficulty</span>
+          <span class="select">Status</span>
+          <span class="select">Topic</span>
+          <span class="select">Company</span>
+        </div>
+        <div class="qtable-scroll">
+          <table>
+            <caption class="muted" style="caption-side: bottom; text-align: left; padding: 0.6rem 0.75rem; font-size: 0.8125rem;">Example question list as it appears in JupyterLab</caption>
+            <thead><tr><th></th><th>#</th><th>Title</th><th>Difficulty</th><th>Acceptance</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="done" aria-label="Solved">✓</td><td class="num-col">1</td><td>Two Sum<div class="topic">Array, Hash Table</div></td><td><span class="diff easy">Easy</span></td><td class="rate">55.8%</td><td><span class="open-btn">Open notebook</span></td></tr>
+              <tr><td class="done"></td><td class="num-col">3</td><td>Longest Substring Without Repeating Characters<div class="topic">Hash Table, String, Sliding Window</div></td><td><span class="diff medium">Medium</span></td><td class="rate">36.9%</td><td><span class="open-btn">Open notebook</span></td></tr>
+              <tr><td class="done"></td><td class="num-col">4</td><td>Median of Two Sorted Arrays<div class="topic">Array, Binary Search, Divide and Conquer</div></td><td><span class="diff hard">Hard</span></td><td class="rate">43.1%</td><td><span class="open-btn">Open notebook</span></td></tr>
+              <tr><td class="done" aria-label="Solved">✓</td><td class="num-col">21</td><td>Merge Two Sorted Lists<div class="topic">Linked List, Recursion</div></td><td><span class="diff easy">Easy</span></td><td class="rate">66.4%</td><td><span class="open-btn">Open notebook</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="profile">
+        <dl class="solved" aria-label="Example solved counts">
+          <div><dt class="diff easy">Easy</dt><div class="bar"><span style="width:62%;background:var(--easy)"></span></div><dd>548</dd></div>
+          <div><dt class="diff medium">Medium</dt><div class="bar"><span style="width:38%;background:var(--medium)"></span></div><dd>701</dd></div>
+          <div><dt class="diff hard">Hard</dt><div class="bar"><span style="width:14%;background:var(--hard)"></span></div><dd>119</dd></div>
+        </dl>
+        <div>
+          <div class="heat" id="heat" role="img" aria-label="Example submission heatmap for the past six months"></div>
+          <div class="heat-caption">Submission heatmap, filled in from your LeetCode profile</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cell section">
+    <div class="prompt" aria-hidden="true"></div>
+    <div class="body prose">
+      <h2><span class="hash" aria-hidden="true">##</span>Every question becomes a notebook you keep.</h2>
+      <p>Click a question and the extension writes a ready-to-run <code>.ipynb</code> next to your other work. Notebooks are grouped in folders of fifty. Your solutions stay on disk and can go in git.</p>
+    </div>
+  </section>
+
+  <section class="cell">
+    <div class="prompt" aria-hidden="true">In [4]:</div>
+    <div class="body">
+      <div class="anatomy">
+<pre class="tree" aria-label="Example folder layout"><span class="dir">your-workspace/</span>
+├─ <span class="dir">1-50/</span>
+│  ├─ <span class="here">1.two-sum.ipynb</span>
+│  ├─ 2.add-two-numbers.ipynb
+│  └─ 21.merge-two-sorted-lists.ipynb
+├─ <span class="dir">51-100/</span>
+│  └─ 70.climbing-stairs.ipynb
+└─ <span class="dir">201-250/</span>
+   └─ 206.reverse-linked-list.ipynb</pre>
+        <ul class="parts">
+          <li><code>description</code><span>The question, its difficulty, topic tags, hints, and a link back to LeetCode.</span></li>
+          <li><code>pre-code</code><span><code>ListNode</code> and <code>TreeNode</code> definitions and the <code>typing</code> imports your signature needs, so the notebook runs as-is.</span></li>
+          <li><code>solution</code><span>The Python 3 starter code. Add more solution cells when you want another approach. Submit sends the last one.</span></li>
+          <li><code>examples</code><span>One cell per example test case. LeetCode's <code>null</code>, <code>true</code>, and <code>false</code> are already converted to Python.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="cell section">
+    <div class="prompt" aria-hidden="true"></div>
+    <div class="body prose">
+      <h2><span class="hash" aria-hidden="true">##</span>Submit, and the verdict is written into the notebook.</h2>
+      <p>The Submit button saves the notebook and sends your solution to LeetCode. When judging finishes, the result is written to a cell at the end of the notebook. The full result is also saved in the notebook's metadata.</p>
+    </div>
+  </section>
+
+  <section class="cell">
+    <div class="prompt" aria-hidden="true">In [5]:</div>
+    <div class="body">
+      <ul class="verdicts">
+        <li><span class="e" aria-hidden="true">😃</span><span><strong>Accepted</strong> <span class="muted">with runtime, memory, and how they rank against other submissions</span></span></li>
+        <li><span class="e" aria-hidden="true">🐛</span><span><strong>Wrong Answer</strong> <span class="muted">with the failing input, your output, and the expected output</span></span></li>
+        <li><span class="e" aria-hidden="true">⏳</span><span><strong>Time Limit Exceeded</strong> <span class="muted">with the last test case and how many passed</span></span></li>
+        <li><span class="e" aria-hidden="true">🚨</span><span><strong>Runtime Error</strong> <span class="muted">with the error and the input that caused it</span></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="cell section" id="faq">
+    <div class="prompt" aria-hidden="true"></div>
+    <div class="body">
+      <h2><span class="hash" aria-hidden="true">##</span>Troubleshooting</h2>
+      <div class="faq">
+        <details>
+          <summary>The LeetCode panel doesn't appear in JupyterLab</summary>
+          <p>Check that the frontend extension is installed:</p>
+          <pre><code>jupyter labextension list</code></pre>
+        </details>
+        <details>
+          <summary>The panel appears but questions don't load</summary>
+          <p>Check that the server extension is enabled, then restart JupyterLab:</p>
+          <pre><code>jupyter server extension list</code></pre>
+        </details>
+        <details>
+          <summary>It says my browser has no LeetCode cookie</summary>
+          <p>Sign in to leetcode.com in that browser, then choose it again. Safari isn't supported because it doesn't allow other apps to read its cookies.</p>
+        </details>
+        <details>
+          <summary>Where are my notebooks saved?</summary>
+          <p>In the folder JupyterLab was started from, under folders like <code>1-50/</code> and <code>51-100/</code>.</p>
+        </details>
+        <details>
+          <summary>How do I uninstall it?</summary>
+          <pre><code>pip uninstall jupyterlab-leetcode</code></pre>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cell section">
+    <div class="prompt" aria-hidden="true">In [ ]:</div>
+    <div class="body">
+      <div class="input install">
+        <pre><code id="install-cmd-2">pip install jupyterlab-leetcode</code></pre>
+        <button class="copy" type="button" data-copy="install-cmd-2">Copy</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>BSD-3-Clause license. Not affiliated with LeetCode or Project Jupyter.</span>
+  <a href="https://github.com/Sorosliu1029/jupyterlab-leetcode">Source code</a>
+  <a href="https://github.com/Sorosliu1029/jupyterlab-leetcode/issues">Report an issue</a>
+  <a href="https://pypi.org/project/jupyterlab-leetcode/">PyPI</a>
+</footer>
+
+<script>
+  // Copy buttons
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copy).textContent;
+      var done = function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(done, function () {});
+      }
+    });
+  });
+
+  // Demo submit: mirrors the extension's real flow and result format
+  (function () {
+    var btn = document.getElementById('submit');
+    var label = btn.querySelector('span');
+    var status = document.getElementById('status');
+    var result = document.getElementById('result');
+    var steps = ['Saving notebook…', 'Submitting solution…', 'Waiting for judge…'];
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      label.textContent = 'Submitting…';
+      result.hidden = true;
+      result.classList.remove('reveal');
+      status.hidden = false;
+      var i = 0;
+      status.textContent = steps[0];
+      var timer = setInterval(function () {
+        i += 1;
+        if (i < steps.length) {
+          status.textContent = steps[i];
+          return;
+        }
+        clearInterval(timer);
+        document.getElementById('finished').textContent = new Date().toUTCString();
+        status.hidden = true;
+        result.hidden = false;
+        result.classList.add('reveal');
+        btn.disabled = false;
+        label.textContent = 'Submit to LeetCode';
+      }, 550);
+    });
+  })();
+
+  // Heatmap: deterministic example data, 26 weeks
+  (function () {
+    var weeks = 26, size = 11, gap = 3;
+    var w = weeks * (size + gap), h = 7 * (size + gap);
+    var seed = 7;
+    function rand() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    var cells = '';
+    for (var x = 0; x < weeks; x++) {
+      for (var y = 0; y < 7; y++) {
+        var r = rand();
+        var busy = x > 15 ? 0.25 : 0.55;
+        var level = r < busy ? 0 : r < busy + 0.2 ? 1 : r < busy + 0.33 ? 2 : r < 0.95 ? 3 : 4;
+        var op = [0, 0.3, 0.55, 0.8, 1][level];
+        cells += '<rect x="' + x * (size + gap) + '" y="' + y * (size + gap) + '" width="' + size + '" height="' + size + '" rx="2" ' +
+          (level === 0 ? 'fill="var(--cell)" stroke="var(--rule)" stroke-width="1"' : 'fill="var(--easy)" fill-opacity="' + op + '"') + '/>';
+      }
+    }
+    document.getElementById('heat').innerHTML =
+      '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' + cells + '</svg>';
+  })();
+</script>
+</body>
+</html>
