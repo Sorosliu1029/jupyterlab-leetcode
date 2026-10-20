@@ -11,7 +11,7 @@ from tornado.httputil import HTTPHeaders, HTTPServerRequest
 from tornado.websocket import WebSocketHandler
 
 from ..utils.notebook_generator import NotebookGenerator
-from ..utils.utils import first, get_leetcode_cookie, request
+from ..utils.utils import first, get_leetcode_cookie, last, request
 from .base_handler import BaseHandler
 
 LEETCODE_URL = "https://leetcode.com"
@@ -451,7 +451,7 @@ class SubmitNotebookHandler(LeetCodeHandler):
     route = r"notebook/submit"
 
     def get_solution(self, notebook):
-        solution_cell = first(
+        solution_cell = last(
             notebook["cells"],
             lambda c: c["cell_type"] == "code" and c["metadata"].get("isSolutionCode"),
         )

@@ -1,5 +1,6 @@
 import json
 import time
+from collections import deque
 from collections.abc import Callable, Iterable, Mapping
 from http.cookiejar import Cookie
 from typing import Any, TypeVar, cast
@@ -16,6 +17,10 @@ def first(iterable: Iterable[T], unary_predicate: Callable[[T], bool]) -> T | No
     """Return the first item in an iterable that satisfies a condition"""
     return next((i for i in iterable if unary_predicate(i)), None)
 
+def last(iterable: Iterable[T], unary_predicate: Callable[[T], bool]) -> T | None:
+    """Return the last item in an iterable that satisfies a condition"""
+    last_containter = deque((i for i in iterable if unary_predicate(i)), maxlen=1)
+    return last_containter[0] if last_containter else None
 
 def request(
     url: str, method: str, headers: Mapping[str, str], body: Mapping[str, Any] = {}
