@@ -65,7 +65,7 @@ Most handlers are thin GraphQL proxies. They call `self.graphql(name, query)` or
 - Question info that submission needs (`submitUrl`, `questionId`, …) is stored in the notebook-level `metadata.leetcode_question_info`.
 - Files are written **relative to the Jupyter server's cwd** into buckets of 50, such as `1-50/1.two-sum.ipynb`.
 
-The generator uses PEP 701 f-strings (nested same-type quotes), so it needs Python ≥ 3.12 at runtime, even though `pyproject.toml` says `>=3.9`.
+The package requires Python ≥ 3.12. The code relies on PEP 701 f-strings (nested same-type quotes) and `X | None` annotations. CI's `test_isolated` job installs the wheel on 3.12, the minimum.
 
 ### Submission
 
