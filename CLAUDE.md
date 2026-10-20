@@ -33,7 +33,7 @@ jlpm test                                   # Jest; matches src/**/__tests__/*.s
 jlpm jest src/__tests__/questionQuery.spec.ts   # single Jest file
 jlpm jest -t 'test name'                    # single Jest test by name
 pytest -vv -r ap --cov jupyterlab_leetcode  # Python server tests
-pytest jupyterlab_leetcode/tests/test_handlers.py::test_get_example
+pytest jupyterlab_leetcode/tests/test_handlers.py::test_get_cookies_requires_browser
 ```
 
 UI integration tests (Playwright/Galata) are in `ui-tests/`. They have their own `package.json`; see `ui-tests/README.md`.
@@ -86,4 +86,4 @@ The generator uses PEP 701 f-strings (nested same-type quotes), so it needs Pyth
 
 - ESLint requires interface names to start with `I` (`IFoo`), single quotes, `curly: all`, and `eqeqeq`. Prettier uses single quotes, no trailing commas, and `arrowParens: avoid`.
 - The version is defined in `package.json`. Hatch reads it via `hatch-nodejs-version`, and `jupyterlab_leetcode/_version.py` is generated. Bump it with `hatch version <v>`. Release steps are in `RELEASE.md`.
-- The project was scaffolded from the JupyterLab extension copier template (`.copier-answers.yml`). Some leftovers are still template placeholders, such as `test_handlers.py` testing a non-existent `get-example` route and the example Jest spec.
+- The project was scaffolded from the JupyterLab extension copier template (`.copier-answers.yml`). The example Jest spec (`src/__tests__/jupyterlab_leetcode.spec.ts`) is still a template placeholder.
