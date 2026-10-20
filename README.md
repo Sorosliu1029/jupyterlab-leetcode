@@ -1,7 +1,5 @@
 ## Integrate LeetCode into beloved Jupyter.
 
-Website: https://sorosliu1029.github.io/jupyterlab-leetcode/
-
 https://github.com/user-attachments/assets/6b8aaf10-ff05-44b6-a6c9-ce0c6e357f2d
 
 #### Requirements
