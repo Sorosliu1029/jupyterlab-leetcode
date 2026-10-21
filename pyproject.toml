@@ -37,6 +37,10 @@ test = [
 [dependency-groups]
 dev = [
     "jupyterlab>=4.3.0,<5",
+    # Release tooling, see RELEASE.md
+    "build",
+    "hatch",
+    "twine",
 ]
 
 [tool.hatch.version]

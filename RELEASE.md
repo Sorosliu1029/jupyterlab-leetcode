@@ -2,6 +2,21 @@
 
 The extension can be published to `PyPI` and `npm` manually or using the [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
 
+## Release script
+
+`scripts/release.sh` runs the manual release below from start to finish. It checks
+that you are on an up-to-date, clean `master`, runs lint and tests, bumps the version,
+builds and checks the packages, and asks for confirmation. Then it publishes to PyPI
+and npm, commits and tags `v<version>`, pushes, and creates the GitHub release.
+
+```bash
+scripts/release.sh --dry-run   # lint, test and build the current version; publish nothing
+scripts/release.sh patch       # or minor, major, or an explicit version such as 0.6.0
+```
+
+It needs the dev environment from [CONTRIBUTING](CONTRIBUTING.md), a PyPI token in
+`~/.pypirc` (or `TWINE_*` environment variables), `npm login`, and `gh auth login`.
+
 ## Manual release
 
 ### Python package
@@ -12,6 +27,8 @@ Python package. Before generating a package, you first need to install some tool
 
 ```bash
 pip install build twine hatch
+# or install the `dev` dependency group, which includes them:
+uv pip install --group dev
 ```
 
 Bump the version using `hatch`. By default this will create a tag.
@@ -32,6 +49,8 @@ You could also clean up the local git repository:
 ```bash
 git clean -dfX
 ```
+
+> This also deletes ignored directories such as `.venv` and `node_modules`.
 
 To create a Python source package (`.tar.gz`) and the binary package (`.whl`) in the `dist/` directory, do:
 
