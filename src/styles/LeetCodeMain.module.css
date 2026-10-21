@@ -120,6 +120,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  container-type: inline-size;
 }
 
 .filters {
@@ -160,6 +161,15 @@
   width: 4rem;
 }
 
+/* keep difficulty and acceptance next to the title on wide panels */
+.title_column {
+  width: 26rem;
+}
+
+.spacer_column {
+  padding: 0;
+}
+
 .difficulty_column {
   width: 6rem;
 }
@@ -173,8 +183,33 @@
 }
 
 .title {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--jp-ui-font-color1);
   font-weight: 500;
+}
+
+/* below this the title needs every spare pixel, so the spacer drops out */
+@container (max-width: 64rem) {
+  .title_column {
+    width: auto;
+  }
+
+  .spacer_column {
+    display: none;
+  }
+
+  /* two lines read better than a title cut to a word or two */
+  .title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+  }
 }
 
 .topics {

@@ -24,7 +24,7 @@ import {
 } from '../services/questionQuery';
 import classes from '../styles/LeetCodeMain.module.css';
 
-const ColumnCount = 6;
+const ColumnCount = 7;
 
 const QuestionTable: React.FC<{
   openNotebook: (p: string) => void;
@@ -145,11 +145,12 @@ const QuestionTable: React.FC<{
                 <VisuallyHidden>Status</VisuallyHidden>
               </Table.Th>
               <Table.Th className={classes.num_column}>#</Table.Th>
-              <Table.Th>Title</Table.Th>
+              <Table.Th className={classes.title_column}>Title</Table.Th>
               <Table.Th className={classes.difficulty_column}>
                 Difficulty
               </Table.Th>
               <Table.Th className={classes.ac_column}>Acceptance</Table.Th>
+              <Table.Th className={classes.spacer_column} aria-hidden />
               <Table.Th className={classes.generate_column}>
                 <VisuallyHidden>Notebook</VisuallyHidden>
               </Table.Th>

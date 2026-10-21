@@ -77,6 +77,7 @@ const QuestionItem: React.FC<{
           href={`https://leetcode.com/problems/${question.titleSlug}`}
           fz="sm"
           className={classes.title}
+          title={question.title}
         >
           {question.title}
         </Anchor>
@@ -95,6 +96,8 @@ const QuestionItem: React.FC<{
       <Table.Td className={classes.mono}>
         {(question.acRate * 100).toFixed(1)}%
       </Table.Td>
+
+      <Table.Td className={classes.spacer_column} aria-hidden />
 
       <Table.Td>
         <Button
