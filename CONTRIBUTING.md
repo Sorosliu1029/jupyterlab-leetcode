@@ -2,7 +2,7 @@
 
 ### Development install
 
-Note: You will need NodeJS to build the extension package.
+Note: You will need NodeJS (>= 22) to build the extension package.
 
 The `jlpm` command is JupyterLab's pinned version of
 [yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
@@ -11,8 +11,13 @@ The `jlpm` command is JupyterLab's pinned version of
 ```bash
 # Clone the repo to your local environment
 # Change directory to the jupyterlab_leetcode directory
-# Install package in development mode
-pip install -e ".[test]"
+# Create and activate a virtual environment (Python >= 3.12)
+python -m venv .venv                # or: uv venv --python 3.14
+source .venv/bin/activate
+# Install package in development mode, plus JupyterLab from the `dev` dependency group
+pip install --group dev -e ".[test]"     # requires pip >= 25.1
+# or with uv:
+uv pip install --group dev -e ".[test]"
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Server extension must be manually installed in develop mode
@@ -44,6 +49,8 @@ jupyter lab build --minimize=False
 # Server extension must be manually disabled in develop mode
 jupyter server extension disable jupyterlab_leetcode
 pip uninstall jupyterlab_leetcode
+# or with uv:
+uv pip uninstall jupyterlab_leetcode
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
@@ -60,6 +67,8 @@ Install test dependencies (needed only once):
 
 ```sh
 pip install -e ".[test]"
+# or with uv:
+uv pip install -e ".[test]"
 # Each time you install the Python package, you need to restore the front-end extension link
 jupyter labextension develop . --overwrite
 ```
