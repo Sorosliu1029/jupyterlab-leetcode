@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
-import { IconCheck, IconCheckbox } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import { StatusColors } from './QuestionItem';
 import classes from '../styles/LeetCodeMain.module.css';
 
@@ -37,8 +37,6 @@ const QuestionStatusFilter: React.FC<{
       maxDropdownHeight={300}
       placeholder="Status"
       checkIconPosition="left"
-      leftSection={<IconCheckbox size={16} stroke={1.5} />}
-      leftSectionPointerEvents="none"
       clearable
       searchable
       value={statuses}

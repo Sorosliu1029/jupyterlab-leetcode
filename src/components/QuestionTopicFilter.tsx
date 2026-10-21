@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
-import { IconCheck, IconTags } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import classes from '../styles/LeetCodeMain.module.css';
 import { getAllTopics } from '../services/leetcode';
 import { LeetCodeTopicTag } from '../types/leetcode';
@@ -44,8 +44,6 @@ const QuestionTopicFilter: React.FC<{
       maxDropdownHeight={300}
       placeholder="Topic"
       checkIconPosition="left"
-      leftSection={<IconTags size={16} stroke={1.5} />}
-      leftSectionPointerEvents="none"
       clearable
       searchable
       value={topics}

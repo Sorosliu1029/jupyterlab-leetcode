@@ -1,25 +1,32 @@
 import React from 'react';
-import { Avatar, Center, Paper, PaperProps, Stack, Text } from '@mantine/core';
+import { Avatar, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { LeetCodeProfile } from '../types/leetcode';
+import classes from '../styles/LeetCodeMain.module.css';
 
-const Profile: React.FC<{
-  profile: LeetCodeProfile | null;
-  paperProps: PaperProps;
-}> = ({ profile, paperProps }) => {
+const Profile: React.FC<{ profile: LeetCodeProfile | null }> = ({
+  profile
+}) => {
   return (
-    <Paper {...paperProps} style={{ alignContent: 'center' }}>
-      <Center>
-        <Stack gap={0}>
-          <Avatar src={profile?.avatar} size="lg" radius="xl" mx="auto" />
-          <Text ta="center" fz="md" fw={500} mt="xs">
-            {profile?.realName}
-          </Text>
-          <Text ta="center" c="dimmed" fz="xs">
-            {profile?.username}
-          </Text>
-        </Stack>
-      </Center>
-    </Paper>
+    <Group className={classes.profile} gap="sm" wrap="nowrap">
+      <Avatar src={profile?.avatar} size="lg" radius="xl" />
+      <Stack gap={2}>
+        {profile ? (
+          <>
+            <Text fz="sm" fw={600} lh={1.3}>
+              {profile.realName || profile.username}
+            </Text>
+            <Text className={classes.mono} lh={1.3}>
+              {profile.username}
+            </Text>
+          </>
+        ) : (
+          <Stack gap={6} py={4}>
+            <Skeleton height={10} width="7rem" />
+            <Skeleton height={8} width="5rem" />
+          </Stack>
+        )}
+      </Stack>
+    </Group>
   );
 };
 

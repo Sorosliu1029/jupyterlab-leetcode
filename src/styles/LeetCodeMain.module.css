@@ -1,51 +1,191 @@
-.title_column {
-  width: 60%;
+/* Shared bordered panel, as on the product page */
+.panel {
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 6px;
+  background: var(--jp-layout-color1);
+  overflow: hidden;
 }
 
-.ac_column {
-  width: 10%;
+.mono {
+  font-family: var(--jp-code-font-family);
+  font-size: 0.8125rem;
+  color: var(--jp-ui-font-color2);
 }
 
-.difficulty_column {
-  width: 10%;
+.easy {
+  color: var(--jp-success-color1);
 }
 
-.generate_column {
-  width: 5%;
+.medium {
+  color: var(--jp-warn-color1);
 }
 
-.generate_button {
-  width: 70%;
-  height: 70%;
+.hard {
+  color: var(--jp-error-color1);
+}
+
+.difficulty {
+  font-weight: 700;
+}
+
+/* First row: profile, solved counts, heatmap */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  padding: 0.875rem 1.25rem;
+  container-type: inline-size;
+}
+
+.profile {
+  flex: 0 0 auto;
+  align-self: stretch;
+  padding-right: 2rem;
+  border-right: 1px solid var(--jp-border-color2);
+}
+
+/* sections wrap below this width; drop the divider so it doesn't dangle */
+@container (max-width: 60rem) {
+  .profile {
+    padding-right: 0;
+    border-right: 0;
+  }
+}
+
+.solved {
+  flex: 0 1 18rem;
+  min-width: 14rem;
+}
+
+.solved_row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--jp-layout-color3);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: currentcolor;
+}
+
+.heat {
+  flex: 1 1 20rem;
+  min-width: 0;
+}
+
+.heat_scroll {
+  overflow-x: auto;
+}
+
+.heat_scroll svg {
+  display: block;
+}
+
+.heat_empty {
+  fill: var(--jp-layout-color2);
+  stroke: var(--jp-border-color2);
+}
+
+.heat_filled {
+  fill: var(--jp-success-color1);
+}
+
+.heat_month {
+  fill: var(--jp-ui-font-color2);
+  font-family: var(--jp-ui-font-family);
+  font-size: 10px;
+}
+
+.caption {
+  font-size: 0.8125rem;
+  color: var(--jp-ui-font-color2);
+  margin-top: 0.5rem;
+}
+
+/* Question browser: filter strip on top of the table */
+.question_panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--jp-layout-color2);
+  border-bottom: 1px solid var(--jp-border-color2);
+}
+
+.search {
+  flex: 1 1 12rem;
 }
 
 .table {
-  border-collapse: separate;
-  border-spacing: 3px;
-  table-layout: fixed;
-  width: unset;
+  min-width: 34rem;
+  --table-border-color: var(--jp-border-color2);
 }
 
-.head {
-  padding: 0;
+.table th {
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--jp-ui-font-color2);
+  background: var(--jp-layout-color1);
 }
 
-.cell {
-  width: 10px;
-  min-width: 10px;
-  max-width: 10px;
-  border: 0.5px solid #1f23280d;
-  border-radius: 2px;
-  padding: 0;
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.status_column {
+  width: 2.25rem;
+}
+
+.num_column {
+  width: 4rem;
+}
+
+.difficulty_column {
+  width: 6rem;
+}
+
+.ac_column {
+  width: 7rem;
+}
+
+.generate_column {
+  width: 9rem;
+}
+
+.title {
+  color: var(--jp-ui-font-color1);
+  font-weight: 500;
+}
+
+.topics {
+  font-size: 0.75rem;
+  color: var(--jp-ui-font-color2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .filter_selected input {
   width: 0;
-  min-width: unset;
-}
-
-.filter_empty input {
-  width: 5em;
   min-width: unset;
 }
 
@@ -60,11 +200,40 @@
 }
 
 .topic_filter_empty input {
-  width: 9em;
+  width: 4em;
   min-width: unset;
 }
 
 .company_filter_empty input {
   width: 5em;
   min-width: unset;
+}
+
+/* Footer: links about the extension, as on the product page */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: calc(var(--mantine-spacing-xs) - var(--mantine-spacing-lg));
+  padding-inline: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+.footer a {
+  font-size: inherit;
+  color: var(--jp-ui-font-color2);
+}
+
+.footer a:hover {
+  color: var(--jp-ui-font-color1);
+}
+
+.footer_name {
+  margin-right: auto;
+}
+
+.footer_links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
 }

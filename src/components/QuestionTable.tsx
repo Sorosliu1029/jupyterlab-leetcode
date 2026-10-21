@@ -6,13 +6,12 @@ import QuestionItem from './QuestionItem';
 import {
   Table,
   Text,
-  Stack,
   ScrollArea,
   Skeleton,
-  Group,
   Transition,
   Center,
-  Loader
+  Loader,
+  VisuallyHidden
 } from '@mantine/core';
 import QuestionQueryKeyword from './QuestionQueryKeyword';
 import QuestionDifficultyFilter from './QuestionDifficultyFilter';
@@ -23,12 +22,14 @@ import {
   loadQuestionQuery,
   saveQuestionQuery
 } from '../services/questionQuery';
+import classes from '../styles/LeetCodeMain.module.css';
+
+const ColumnCount = 6;
 
 const QuestionTable: React.FC<{
   openNotebook: (p: string) => void;
-  height: number | string;
   isPremium?: boolean;
-}> = ({ openNotebook, height, isPremium }) => {
+}> = ({ openNotebook, isPremium }) => {
   const limit = 100;
 
   const [fetching, setFetching] = useState(true);
@@ -69,7 +70,7 @@ const QuestionTable: React.FC<{
         .fill(null)
         .map((_, i) => (
           <Table.Tr key={i}>
-            <Table.Td>
+            <Table.Td colSpan={ColumnCount}>
               <Skeleton height="1lh" radius="md" />
             </Table.Td>
           </Table.Tr>
@@ -78,8 +79,8 @@ const QuestionTable: React.FC<{
     if (!questions.length) {
       return (
         <Table.Tr>
-          <Table.Td>
-            <Text fw={500} ta="center">
+          <Table.Td colSpan={ColumnCount}>
+            <Text fw={500} ta="center" c="dimmed">
               Nothing found
             </Text>
           </Table.Td>
@@ -97,19 +98,19 @@ const QuestionTable: React.FC<{
   };
 
   return (
-    <Stack h={height} pb="lg">
-      <Group>
+    <div className={`${classes.panel} ${classes.question_panel}`}>
+      <div className={classes.filters}>
         <QuestionQueryKeyword
           keyword={query.keyword}
           updateKeyword={k => updateQuery({ ...query, keyword: k })}
         />
-        <QuestionStatusFilter
-          statuses={query.statuses}
-          updateStatuses={ss => updateQuery({ ...query, statuses: ss })}
-        />
         <QuestionDifficultyFilter
           difficulties={query.difficulties}
           updateDifficulties={ds => updateQuery({ ...query, difficulties: ds })}
+        />
+        <QuestionStatusFilter
+          statuses={query.statuses}
+          updateStatuses={ss => updateQuery({ ...query, statuses: ss })}
         />
         <QuestionTopicFilter
           topics={query.topics}
@@ -120,9 +121,10 @@ const QuestionTable: React.FC<{
           updateCompanies={cs => updateQuery({ ...query, companies: cs })}
           isPremium={isPremium}
         />
-      </Group>
+      </div>
       <ScrollArea
         type="scroll"
+        style={{ flex: 1, minHeight: 0 }}
         onBottomReached={() => {
           if (!fetchingMore && hasMore) {
             setFetchingMore(true);
@@ -131,11 +133,28 @@ const QuestionTable: React.FC<{
         }}
       >
         <Table
-          striped
-          withRowBorders={false}
+          className={classes.table}
+          stickyHeader
           verticalSpacing="xs"
+          horizontalSpacing="sm"
           layout="fixed"
         >
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th className={classes.status_column}>
+                <VisuallyHidden>Status</VisuallyHidden>
+              </Table.Th>
+              <Table.Th className={classes.num_column}>#</Table.Th>
+              <Table.Th>Title</Table.Th>
+              <Table.Th className={classes.difficulty_column}>
+                Difficulty
+              </Table.Th>
+              <Table.Th className={classes.ac_column}>Acceptance</Table.Th>
+              <Table.Th className={classes.generate_column}>
+                <VisuallyHidden>Notebook</VisuallyHidden>
+              </Table.Th>
+            </Table.Tr>
+          </Table.Thead>
           <Table.Tbody>{getTableRows()}</Table.Tbody>
         </Table>
         <Transition
@@ -151,7 +170,7 @@ const QuestionTable: React.FC<{
           )}
         </Transition>
       </ScrollArea>
-    </Stack>
+    </div>
   );
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, MultiSelect, MultiSelectProps } from '@mantine/core';
-import { IconCheck, IconGauge } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import { DifficultyColors } from './Statistics';
 import classes from '../styles/LeetCodeMain.module.css';
 
@@ -34,8 +34,6 @@ const QuestionDifficultyFilter: React.FC<{
       maxDropdownHeight={300}
       placeholder="Difficulty"
       checkIconPosition="left"
-      leftSection={<IconGauge size={16} stroke={1.5} />}
-      leftSectionPointerEvents="none"
       clearable
       searchable
       value={difficulties.map(difficulty => difficulty.toLowerCase())}
