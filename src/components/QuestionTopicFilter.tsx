@@ -42,7 +42,7 @@ const QuestionTopicFilter: React.FC<{
       data={options}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
-      placeholder="Topic"
+      placeholder={topics.length ? undefined : 'Topic'}
       checkIconPosition="left"
       clearable
       searchable
@@ -50,9 +50,7 @@ const QuestionTopicFilter: React.FC<{
       onChange={v => {
         updateTopics(v);
       }}
-      className={
-        topics.length > 0 ? classes.filter_selected : classes.topic_filter_empty
-      }
+      className={classes.picker_wide}
     />
   );
 };

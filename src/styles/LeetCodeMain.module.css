@@ -132,7 +132,8 @@
 }
 
 .search {
-  flex: 1 1 12rem;
+  flex: 1 1 14rem;
+  max-width: 24rem;
 }
 
 .table {
@@ -184,29 +185,27 @@
   text-overflow: ellipsis;
 }
 
-.filter_selected input {
+/* Pickers sized by what they hold: short option sets vs long names */
+.picker_narrow,
+.picker_wide {
+  flex: 0 1 auto;
+  max-width: 20rem;
+}
+
+/* the search field fills leftover space instead of setting the picker's width */
+.picker_narrow input,
+.picker_wide input {
+  flex: 1;
   width: 0;
-  min-width: unset;
+  min-width: 0;
 }
 
-.status_filter_empty input {
-  width: 4em;
-  min-width: unset;
+.picker_narrow {
+  min-width: 9rem;
 }
 
-.difficulty_filter_empty input {
-  width: 4.5em;
-  min-width: unset;
-}
-
-.topic_filter_empty input {
-  width: 4em;
-  min-width: unset;
-}
-
-.company_filter_empty input {
-  width: 5em;
-  min-width: unset;
+.picker_wide {
+  min-width: 12rem;
 }
 
 /* Footer: links about the extension, as on the product page */

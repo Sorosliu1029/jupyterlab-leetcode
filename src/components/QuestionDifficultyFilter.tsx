@@ -32,7 +32,7 @@ const QuestionDifficultyFilter: React.FC<{
       data={Data}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
-      placeholder="Difficulty"
+      placeholder={difficulties.length ? undefined : 'Difficulty'}
       checkIconPosition="left"
       clearable
       searchable
@@ -40,11 +40,7 @@ const QuestionDifficultyFilter: React.FC<{
       onChange={v => {
         updateDifficulties(v.map(v => v.toUpperCase()));
       }}
-      className={
-        difficulties.length > 0
-          ? classes.filter_selected
-          : classes.difficulty_filter_empty
-      }
+      className={classes.picker_narrow}
     />
   );
 };

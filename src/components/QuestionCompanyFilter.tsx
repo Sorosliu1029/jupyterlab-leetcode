@@ -43,7 +43,7 @@ const QuestionCompanyFilter: React.FC<{
       data={options}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
-      placeholder="Company"
+      placeholder={companies.length ? undefined : 'Company'}
       checkIconPosition="left"
       clearable
       searchable
@@ -51,11 +51,7 @@ const QuestionCompanyFilter: React.FC<{
       onChange={v => {
         updateCompanies(v);
       }}
-      className={
-        companies.length > 0
-          ? classes.filter_selected
-          : classes.company_filter_empty
-      }
+      className={classes.picker_wide}
       disabled={disabled}
     />
   );

@@ -35,7 +35,7 @@ const QuestionStatusFilter: React.FC<{
       data={Data}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
-      placeholder="Status"
+      placeholder={statuses.length ? undefined : 'Status'}
       checkIconPosition="left"
       clearable
       searchable
@@ -43,11 +43,7 @@ const QuestionStatusFilter: React.FC<{
       onChange={v => {
         updateStatuses(v);
       }}
-      className={
-        statuses.length > 0
-          ? classes.filter_selected
-          : classes.status_filter_empty
-      }
+      className={classes.picker_narrow}
     />
   );
 };
