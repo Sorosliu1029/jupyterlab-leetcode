@@ -161,9 +161,26 @@
   width: 4rem;
 }
 
-/* keep difficulty and acceptance next to the title on wide panels */
+/*
+  Keep difficulty and acceptance near the title: a fixed floor for long
+  titles, a share of the panel as it widens, and a cap on 4K screens.
+  Breakpoints sit where 35% meets 26rem and 60rem. (Chrome ignores
+  clamp()/max() mixing % and rem on table cells, hence the queries.)
+*/
 .title_column {
   width: 26rem;
+}
+
+@container (min-width: 74rem) {
+  .title_column {
+    width: 35%;
+  }
+}
+
+@container (min-width: 171rem) {
+  .title_column {
+    width: 60rem;
+  }
 }
 
 .spacer_column {
