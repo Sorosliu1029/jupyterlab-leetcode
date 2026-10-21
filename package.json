@@ -124,6 +124,7 @@
         "schemaDir": "schema"
     },
     "eslintIgnore": [
+        ".venv",
         "node_modules",
         "dist",
         "coverage",
