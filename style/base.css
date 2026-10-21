@@ -3,3 +3,27 @@
 
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+/*
+    Map Mantine's surface, text and border colors onto the JupyterLab theme.
+    Doubled :root outranks Mantine's own :root[data-mantine-color-scheme='...']
+    rules regardless of stylesheet order. Set on :root so portaled dropdowns
+    and tooltips pick it up too.
+*/
+:root:root[data-mantine-color-scheme] {
+  --mantine-font-family: var(--jp-ui-font-family);
+  --mantine-font-family-monospace: var(--jp-code-font-family);
+  --mantine-color-body: var(--jp-layout-color1);
+  --mantine-color-text: var(--jp-ui-font-color1);
+  --mantine-color-dimmed: var(--jp-ui-font-color2);
+  --mantine-color-placeholder: var(--jp-ui-font-color3);
+  --mantine-color-default: var(--jp-layout-color1);
+  --mantine-color-default-hover: var(--jp-layout-color2);
+  --mantine-color-default-color: var(--jp-ui-font-color1);
+  --mantine-color-default-border: var(--jp-border-color1);
+  --mantine-color-anchor: var(--jp-content-link-color);
+}
+
+.jupyterlab-leetcode-widget {
+  background: var(--jp-layout-color0);
+}

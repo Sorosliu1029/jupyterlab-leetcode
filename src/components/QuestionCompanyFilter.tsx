@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, MultiSelect, MultiSelectProps, Tooltip } from '@mantine/core';
-import { IconBuildings, IconCheck } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import classes from '../styles/LeetCodeMain.module.css';
 import { LeetCodeCompanyTag } from '../types/leetcode';
 import { getAllCompanies } from '../services/leetcode';
@@ -43,21 +43,15 @@ const QuestionCompanyFilter: React.FC<{
       data={options}
       renderOption={renderMultiSelectOption}
       maxDropdownHeight={300}
-      placeholder="Company"
+      placeholder={companies.length ? undefined : 'Company'}
       checkIconPosition="left"
-      leftSection={<IconBuildings size={16} stroke={1.5} />}
-      leftSectionPointerEvents="none"
       clearable
       searchable
       value={companies}
       onChange={v => {
         updateCompanies(v);
       }}
-      className={
-        companies.length > 0
-          ? classes.filter_selected
-          : classes.company_filter_empty
-      }
+      className={classes.picker_wide}
       disabled={disabled}
     />
   );
