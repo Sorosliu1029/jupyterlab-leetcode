@@ -14,8 +14,10 @@ A JupyterLab 4 extension that brings LeetCode into Jupyter. It has two halves th
 ## Commands
 
 ```bash
-# Dev setup (once)
-pip install -e ".[test]"
+# Dev setup (once), in the uv venv at .venv (Python 3.14; NodeJS >= 22 must be on PATH)
+uv venv --python 3.14 && source .venv/bin/activate
+uv pip install --group dev -e ".[test]"   # `dev` group = JupyterLab
+jlpm install
 jupyter labextension develop . --overwrite
 jupyter server extension enable jupyterlab_leetcode
 
@@ -39,6 +41,8 @@ pytest jupyterlab_leetcode/tests/test_handlers.py::test_get_cookies_requires_bro
 UI integration tests (Playwright/Galata) are in `ui-tests/`. They have their own `package.json`; see `ui-tests/README.md`.
 
 After you change Python handlers, restart `jupyter lab`. `jlpm watch` only rebuilds the frontend.
+
+The sibling `../leetcode` project uses this checkout directly. Its own `.venv` installs it editable through `requirements-dev.txt` and symlinks the labextension to `jupyterlab_leetcode/labextension`. So `jlpm watch` here also updates the Jupyter that `../leetcode/launch-jupyter.sh` starts.
 
 ## Architecture
 
