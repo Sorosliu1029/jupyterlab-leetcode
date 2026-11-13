@@ -96,6 +96,22 @@ async def test_get_cookies_missing_session(jp_fetch, monkeypatch):
     assert "leetcode_browser" not in response.headers.get("Set-Cookie", "")
 
 
+async def test_get_cookies_from_zen_with_millisecond_expiry(jp_fetch, monkeypatch):
+    expires = int(time.time()) + 3600
+    jar = CookieJar()
+    jar.set_cookie(make_cookie("LEETCODE_SESSION", "session", expires * 1000))
+    jar.set_cookie(make_cookie("csrftoken", "csrf", expires * 1000))
+    monkeypatch.setitem(utils.BROWSER_COOKIE_METHOD_MAP, "zen", lambda domain_name: jar)
+
+    response = await jp_fetch("jupyterlab-leetcode", "cookies", params={"browser": "zen"})
+
+    assert response.code == 200
+    payload = json.loads(response.body)
+    assert payload["checked"] is True
+    assert payload["expires"] == expires
+    assert "leetcode_browser=zen" in response.headers.get("Set-Cookie", "")
+
+
 async def test_leetcode_handler_requires_browser_cookie(jp_fetch):
     with pytest.raises(HTTPClientError) as e:
         await jp_fetch("jupyterlab-leetcode", "leetcode", "profile")

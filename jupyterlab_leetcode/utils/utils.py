@@ -36,6 +36,31 @@ def request(
     return client.fetch(req)
 
 
+class Zen(browser_cookie3.FirefoxBased):
+    """Zen browser (Firefox based), not yet known to browser_cookie3"""
+
+    def __init__(self, cookie_file=None, domain_name="", key_file=None):
+        args = {
+            "linux_data_dirs": [
+                "~/.var/app/app.zen_browser.zen/.zen",
+                "~/.zen",
+            ],
+            "windows_data_dirs": [
+                {"env": "APPDATA", "path": "zen"},
+                {"env": "LOCALAPPDATA", "path": "zen"},
+            ],
+            "osx_data_dirs": ["~/Library/Application Support/zen"],
+        }
+        super().__init__("Zen", cookie_file, domain_name, key_file, **args)
+
+
+def zen(cookie_file=None, domain_name="", key_file=None):
+    return Zen(cookie_file, domain_name=domain_name, key_file=key_file).load()
+
+
+# Year 5138 in seconds; anything larger must be a millisecond timestamp
+MAX_EXPIRES_SECONDS = 10**11
+
 BROWSER_COOKIE_METHOD_MAP = {
     "chrome": browser_cookie3.chrome,
     "chromium": browser_cookie3.chromium,
@@ -46,6 +71,7 @@ BROWSER_COOKIE_METHOD_MAP = {
     "vivaldi": browser_cookie3.vivaldi,
     "firefox": browser_cookie3.firefox,
     "librewolf": browser_cookie3.librewolf,
+    "zen": zen,
     "safari": browser_cookie3.safari,
     "arc": browser_cookie3.arc,
 }
@@ -63,6 +89,11 @@ def get_leetcode_cookie(browser: str, settings: dict[str, Any], ua: str):
         raise Exception(f"Failed to retrieve cookies. Maybe {browser} not installed?")
     except Exception as e:
         raise Exception(f"An error occurred: {str(e)}")
+
+    for c in cj:
+        # Recent Firefox-based browsers (e.g. Zen) store expiry in milliseconds
+        if c.expires and c.expires > MAX_EXPIRES_SECONDS:
+            c.expires //= 1000
 
     cookie_session = first(cj, lambda c: c.name == "LEETCODE_SESSION" and c.domain in {"leetcode.com", ".leetcode.com"})
     cookie_csrf = first(cj, lambda c: c.name == "csrftoken" and c.domain in {"leetcode.com", ".leetcode.com"})

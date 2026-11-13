@@ -1,51 +1,66 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {
-  Button,
-  Container,
-  Group,
-  Text,
-  Tooltip,
-  Anchor,
-  Paper
-} from '@mantine/core';
-import { IconBrandGithub, IconBrandLinkedin } from '@tabler/icons-react';
+import { Container, Group, Text, Anchor, Paper, Loader } from '@mantine/core';
 import classes from '../styles/LandingPage.module.css';
 import Footer from './Footer';
 import BrowserMenu from './BrowserMenu';
+import { getCookie } from '../services/cookie';
+import {
+  currentBrowserSignals,
+  detectBrowserCandidates,
+  IBrowserCandidate
+} from '../services/browserDetect';
 
 export const LeetCodeMainColor = '#FEA512';
 export const LeetCodeSecondColor = '#FFDB01';
 const LeetCdoeGradient = { from: LeetCodeMainColor, to: LeetCodeSecondColor };
 
+// Try each candidate in order, resolve with the first one holding a valid LeetCode login
+const loadCookieFromCandidates = async (
+  candidates: IBrowserCandidate[]
+): Promise<boolean> => {
+  for (const { key } of candidates) {
+    try {
+      const resp = await getCookie(key);
+      if (resp['checked']) {
+        return true;
+      }
+    } catch {
+      // browser not installed or cookies unreadable, try the next one
+    }
+  }
+  return false;
+};
+
 const LandingPage: React.FC<{
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({ setIsLoggedIn }) => {
-  const options: JSX.Element[] = [
-    <BrowserMenu onCheckSuccess={() => setIsLoggedIn(true)} />,
-    <Tooltip label="Not implemented yet, contributions are welcome!">
-      <Button
-        size="md"
-        variant="filled"
-        data-disabled
-        onClick={e => e.preventDefault()}
-        leftSection={<IconBrandGithub size={20} />}
-      >
-        GitHub Login
-      </Button>
-    </Tooltip>,
-    <Tooltip label="Not implemented yet, contributions are welcome!">
-      <Button
-        size="md"
-        variant="filled"
-        data-disabled
-        onClick={e => e.preventDefault()}
-        leftSection={<IconBrandLinkedin size={20} />}
-      >
-        LinkedIn Login
-      </Button>
-    </Tooltip>
-  ];
+  const [candidates] = useState(() =>
+    detectBrowserCandidates(currentBrowserSignals())
+  );
+  const [detecting, setDetecting] = useState(candidates.length > 0);
+
+  useEffect(() => {
+    if (!candidates.length) {
+      return;
+    }
+    let cancelled = false;
+    loadCookieFromCandidates(candidates).then(found => {
+      if (cancelled) {
+        return;
+      }
+      if (found) {
+        setIsLoggedIn(true);
+      } else {
+        setDetecting(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [candidates]);
+
+  const browserNames = candidates.map(c => c.name).join(' / ');
 
   return (
     <Paper>
@@ -63,22 +78,37 @@ const LandingPage: React.FC<{
           plugin
         </h1>
 
-        <Text className={classes.description} c="dimmed">
-          For this plugin to work, you may choose one of these {options.length}{' '}
-          methods to allow this plugin to{' '}
-          <Anchor
-            href="https://leetcode.com/accounts/login/"
-            target="_blank"
-            variant="gradient"
-            gradient={LeetCdoeGradient}
-            className={classes.description}
-          >
-            log into LeetCode
-          </Anchor>
-          <sup>*</sup>
-        </Text>
+        {detecting ? (
+          <Group className={classes.controls}>
+            <Loader size="sm" color={LeetCodeMainColor} />
+            <Text c="dimmed">
+              Looking for your LeetCode login in {browserNames}...
+            </Text>
+          </Group>
+        ) : (
+          <>
+            <Text className={classes.description} c="dimmed">
+              {candidates.length
+                ? `No LeetCode login found in ${browserNames}. `
+                : ''}
+              Please{' '}
+              <Anchor
+                href="https://leetcode.com/accounts/login/"
+                target="_blank"
+                variant="gradient"
+                gradient={LeetCdoeGradient}
+                className={classes.description}
+              >
+                log into LeetCode
+              </Anchor>
+              <sup>*</sup> in a browser, then load the login from it.
+            </Text>
 
-        <Group className={classes.controls}>{...options}</Group>
+            <Group className={classes.controls}>
+              <BrowserMenu onCheckSuccess={() => setIsLoggedIn(true)} />
+            </Group>
+          </>
+        )}
 
         <Text
           size="sm"

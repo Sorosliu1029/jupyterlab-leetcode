@@ -78,6 +78,12 @@ const Browsers = [
     )
   },
   {
+    name: 'Zen',
+    icon: (color: string) => (
+      <IconWorldWww color={color} {...BrowserIconProps} />
+    )
+  },
+  {
     name: 'Opera GX',
     icon: (color: string) => (
       <IconBrandOpera color={color} {...BrowserIconProps} />
